@@ -8,3 +8,4 @@ const Input = (props) => {
     </View>
   );
 };
+export default Input;

@@ -15,7 +15,6 @@ const Button = (props) => {
       style={{ ...styles.btn, ...props.style }}
       onPress={props.onPress}
     >
-      {isLoading && isLoading}
       <ActivityIndicator />
       <Text></Text>
     </TouchableOpacity>

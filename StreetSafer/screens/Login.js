@@ -4,15 +4,16 @@ import {
   Text,
   View,
   StyleSheet,
-  TouchableOpacity,
+  Image,
 } from "react-native";
 import { COLORS, images, FONTS, SIZES } from "../constants";
+import { TouchableOpacity } from "react-native";
+import Input from "../components/Input";
+import Button from "../components/Button";
 const Login = () => {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <ScrollView
-        style={{ flex: 1, backgroundColor: COLORS > background, padding: 16 }}
-      >
+    <SafeAreaView>
+      <ScrollView>
         <Image
           source={images.logo}
           resizeMode="contain"

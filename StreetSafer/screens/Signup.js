@@ -1,7 +1,9 @@
-import { SafeAreaView, ScrollView, View } from "react-native";
+import { ScrollView, View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import { TouchableOpacity } from "react-native";
+
 const Signup = () => {
   return (
     <SafeAreaView>
@@ -14,7 +16,6 @@ const Signup = () => {
         <Input id="email" placeHolder="Email" />
         <Input id="password" placeHolder="Password" />
         <Button title="SIGNUP" />
-        <Input />
         <View>
           <Text> Already have an account?</Text>
           <TouchableOpacity>

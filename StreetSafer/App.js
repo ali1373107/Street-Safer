@@ -8,6 +8,8 @@ import ProfileScreen from "./screens/ProfileScreen";
 import PotholesOnMap from "./screens/PotholesOnMap";
 import { Ionicons } from "@expo/vector-icons";
 import DangerousPothole from "./screens/DangerousPotholes";
+import Login from "./screens/Login";
+import Signup from "./screens/Signup";
 
 const Drawer = createDrawerNavigator();
 
@@ -86,6 +88,26 @@ export default function App() {
             ),
           }}
         />
+        <Drawer.Screen
+          name="Login"
+          component={Login}
+          options={{
+            drawerLabel: "LOGIN",
+            drawerIcon: ({ color, size }) => (
+              <Ionicons color={color} size={size} />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="Signup"
+          component={Signup}
+          options={{
+            drawerLabel: "SIGNUP",
+            drawerIcon: ({ color, size }) => (
+              <Ionicons color={color} size={size} />
+            ),
+          }}
+        />
       </Drawer.Navigator>
     </NavigationContainer>
   );
@@ -99,8 +121,3 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-//app.js
-
-
-
-//app.js
