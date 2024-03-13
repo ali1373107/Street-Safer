@@ -7,7 +7,7 @@ const Input = (props) => {
     props.onInputChanged(props.id, text);
   };
   return (
-    <View style={StyleSheet.container}>
+    <View style={styles.container}>
       <View style={[styles.inputContainer, { borderColor: COLORS.gray }]}>
         <TextInput
           {...props}
