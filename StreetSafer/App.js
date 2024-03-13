@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Image } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import WelcomeScreen from "./screens/WelcomeScreen";
@@ -10,10 +10,31 @@ import { Ionicons } from "@expo/vector-icons";
 import DangerousPothole from "./screens/DangerousPotholes";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
+import React, { useEffect, useState } from "react";
 
 const Drawer = createDrawerNavigator();
 
+const Splash = () => (
+  <View style={styles.splashContainer}>
+    <Image
+      source={require("./assets/images/splash.png")}
+      resizeMode="contain"
+      style={styles.splashImage}
+    />
+  </View>
+);
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 3000); // Simulated 3 seconds of loading time
+  }, []);
+
+  if (isLoading) {
+    return <Splash />;
+  }
   return (
     <NavigationContainer>
       <Drawer.Navigator
@@ -119,5 +140,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+  },
+  splashContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  splashImage: {
+    width: 500,
+    height: 500,
   },
 });
