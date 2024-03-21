@@ -1,17 +1,67 @@
-import { ScrollView, View, Text, StyleSheet, Image } from "react-native";
+import { ScrollView, View, Text, StyleSheet, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { TouchableOpacity } from "react-native";
 import { COLORS, images, FONTS, SIZES } from "../constants";
-import { useCallback } from "react";
 import { validateInput } from "../utils/actions/formActions";
-import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { signUp } from "../utils/actions/authAction";
+import React, { useCallback, useReducer, useState, useEffect } from "react";
+import { reducer } from "../utils/reducers/formReducers";
+import { validate } from "validate.js";
 
-const Signup = () => {
-  const inputChangedHandeler = useCallback((id, value) => {
-    console.log(id, value);
-  });
+const isTestMode = true;
+const initialState = {
+  inputValues: {
+    fullName: isTestMode ? "Ali Dashti" : "",
+    email: isTestMode ? "Ali@gmail.com" : "",
+    password: isTestMode ? "*******" : "",
+  },
+  inputValidities: {
+    fullName: false,
+    email: false,
+    password: false,
+  },
+};
+const Signup = ({ navigation }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
+  const [formState, dispatchFormState] = useReducer(reducer, initialState);
+  const dispatch = useDispatch();
+  const inputChangedHandeler = useCallback(
+    (inputId, inputValue) => {
+      const result = validateInput(inputId, inputValue);
+      dispatchFormState({ inputId, validationResult: result, inputValue });
+    },
+    [dispatchFormState]
+  );
+  const authHandeletr = async () => {
+    try {
+      setIsLoading(true);
+      const action = signUp(
+        formState.inputValues.fullName,
+        formState.inputValues.email,
+        formState.inputValues.password
+      );
+      console.log("alert:", Alert);
+      await dispatch(action);
+      Alert.alert("Account Successfully created ", "Account created. ");
+      setError(null);
+      setIsLoading(false);
+      navigation.navigate("Login");
+    } catch (error) {
+      console.log("Error Message1", error);
+      setIsLoading(false);
+      setError("error message 2 for creating user ", error.message);
+    }
+  };
+  useEffect(() => {
+    if (error) {
+      Alert.alert("An error occured", error);
+    }
+  }, [error]);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView
@@ -46,17 +96,20 @@ const Signup = () => {
             placeHolder="Password"
             placeHolderTextColor={COLORS.gray}
             errorText={formState.inputValidities["password"]}
+            onInputChanged={inputChangedHandeler}
           />
           <Button
             title="SIGNUP"
             style={{ width: SIZES.width - 32, marginVertical: 8 }}
+            onPress={authHandeletr}
+            isLoading={isLoading}
           />
           <View style={styles.bottomContainer}>
             <Text style={{ ...FONTS.body3, color: COLORS.white }}>
               {" "}
               Already have an account?
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
               <Text style={{ ...FONTS.h3, color: COLORS.white }}> Login</Text>
             </TouchableOpacity>
           </View>

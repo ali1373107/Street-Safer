@@ -1,7 +1,6 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { initializeAuth, getReactNativePersistance } from "firebase/auth";
-import { ReactNativeAsyncStorage } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 let firebaseApp;
 export const getFirebaseApp = () => {
@@ -10,14 +9,13 @@ export const getFirebaseApp = () => {
   }
 
   const firebaseConfig = {
-    apiKey: "AIzaSyBo7jMROkoUjyfkOflA5fpxnw8FbJFL47c",
-    authDomain: "fir-project-83a18.firebaseapp.com",
-    databaseURL: "https://fir-project-83a18-default-rtdb.firebaseio.com",
-    projectId: "fir-project-83a18",
-    storageBucket: "fir-project-83a18.appspot.com",
-    messagingSenderId: "498723320127",
-    appId: "1:498723320127:web:e2f8dc46376421f2c3e38a",
-    measurementId: "G-CBD1RZXCTR",
+    apiKey: "AIzaSyA8CXy5FHeymhm3G1y6AZvfIznGVa7lzMQ",
+    authDomain: "streetsaver-681d8.firebaseapp.com",
+    projectId: "streetsaver-681d8",
+    storageBucket: "streetsaver-681d8.appspot.com",
+    messagingSenderId: "7679468605",
+    appId: "1:7679468605:web:9c3af4e2b547588536b654",
+    measurementId: "G-7C5LBSQNPY",
   };
   const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
