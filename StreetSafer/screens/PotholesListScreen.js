@@ -1,18 +1,16 @@
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet } from "react-native";
 
 function PotholesListScreen() {
-
-  function openDrawerHandeler({navigation}){
+  function openDrawerHandeler({ navigation }) {
     navigation.toggleDrawer();
   }
-
 
   return (
     <View style={styles.rootContainer}>
       <Text>
         This is the <Text style={styles.highlight}>"User"</Text> screen!
       </Text>
-      <Button title='Open Drawer' onPress={openDrawerHandeler} />
+      <Button title="Open Drawer" onPress={openDrawerHandeler} />
     </View>
   );
 }
@@ -22,11 +20,11 @@ export default PotholesListScreen;
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   highlight: {
-    fontWeight: 'bold',
-    color: '#eb1064',
+    fontWeight: "bold",
+    color: "#eb1064",
   },
 });
