@@ -13,6 +13,7 @@ import Button from "../components/Button";
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { createPothole } from "../utils/actions/potholeAction";
+import { set } from "firebase/database";
 
 // Function to get the userId of the currently logged-in user
 const getUserId = () => {
@@ -35,6 +36,7 @@ const AddPothole = () => {
   const [postcode, setPostcode] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const [description, setDescription] = useState("");
   const [dangerLevel, setDangerLevel] = useState("Not Dangerous");
 
   const handleSubmit = async () => {
@@ -47,6 +49,7 @@ const AddPothole = () => {
         latitude,
         longitude,
         dangerLevel,
+        description,
         userId
       );
       console.log("Pothole created successfully");
@@ -56,6 +59,7 @@ const AddPothole = () => {
       setLatitude("");
       setLongitude("");
       setDangerLevel("Not Dangerous");
+      setDescription("");
     } catch (error) {
       console.error("Error creating pothole:", error);
       // Handle error (e.g., display error message to user)
@@ -77,19 +81,20 @@ const AddPothole = () => {
         placeholder="Postcode"
         value={postcode}
         onChangeText={setPostcode}
-        keyboardType="numeric"
       />
       <TextInput
         style={styles.input}
         placeholder="Latitude"
         value={latitude}
         onChangeText={setLatitude}
+        keyboardType="numeric"
       />
       <TextInput
         style={styles.input}
         placeholder="Longitude"
         value={longitude}
         onChangeText={setLongitude}
+        keyboardType="numeric"
       />
       <Text style={styles.label}>Danger Level:</Text>
       <Picker
@@ -101,6 +106,12 @@ const AddPothole = () => {
         <Picker.Item label="Likely Dangerous" value="Likely Dangerous" />
         <Picker.Item label="Dangerous" value="Dangerous" />
       </Picker>
+      <TextInput
+        style={styles.input}
+        placeholder="Descriptio "
+        value={postcode}
+        onChangeText={setPostcode}
+      />
       <Button
         title="SUBMIT"
         onPress={handleSubmit}
