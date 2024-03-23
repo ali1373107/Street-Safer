@@ -1,7 +1,18 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 ///
-import { child, getDatabase, ref, push, set } from "firebase/database";
+import {
+  child,
+  getDatabase,
+  ref,
+  set,
+  equalTo,
+  orderByChild,
+  query,
+  get,
+} from "firebase/database";
+import { push } from "firebase/database";
+
 ////
 export const createPothole = async (
   streetName,
@@ -37,5 +48,34 @@ export const createPothole = async (
     throw error; // Re-throw the error to be caught by the caller
   }
 };
+export const getPotholesByUserId = async (userId) => {
+  try {
+    // Get a reference to the database
+    const db = getDatabase();
 
+    // Create a query to retrieve potholes with matching user ID
+    const potholesRef = ref(db, "potholes");
+    const potholesQuery = query(
+      potholesRef,
+      orderByChild("userId"),
+      equalTo(userId)
+    );
+
+    // Retrieve potholes matching the query
+    const snapshot = await get(potholesQuery);
+
+    // Convert snapshot to an array of potholes
+    const potholes = [];
+    snapshot.forEach((childSnapshot) => {
+      const pothole = childSnapshot.val();
+      potholes.push({ id: childSnapshot.key, ...pothole });
+    });
+
+    return potholes;
+  } catch (error) {
+    // Handle any errors
+    console.error("Error retrieving potholes:", error);
+    throw error; // Re-throw the error to be caught by the caller
+  }
+};
 ///https://reactnative.dev/docs/pressable

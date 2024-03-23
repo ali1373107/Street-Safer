@@ -1,30 +1,73 @@
-import { View, Text, Button, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { FlatList, View, Text, StyleSheet } from "react-native";
+import { getPotholesByUserId } from "../utils/actions/potholeAction";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-function PotholesListScreen() {
-  function openDrawerHandeler({ navigation }) {
-    navigation.toggleDrawer();
-  }
+const ListOfPotholes = () => {
+  const [potholes, setPotholes] = useState([]);
+  const [userId, setUserId] = useState(null);
 
-  return (
-    <View style={styles.rootContainer}>
+  useEffect(() => {
+    // Function to retrieve the current user's ID
+    const getUserId = () => {
+      return new Promise((resolve, reject) => {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            // User is signed in, return the userId
+            resolve(user.uid);
+          } else {
+            // No user is signed in
+            reject("No user signed in");
+          }
+        });
+      });
+    };
+
+    // Fetch potholes data when the component mounts
+    const fetchPotholes = async () => {
+      try {
+        const currentUserId = await getUserId();
+        setUserId(currentUserId);
+        const fetchedPotholes = await getPotholesByUserId(currentUserId);
+        setPotholes(fetchedPotholes);
+      } catch (error) {
+        console.error("Error fetching potholes:", error);
+      }
+    };
+
+    fetchPotholes();
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <View>
       <Text>
-        This is the <Text style={styles.highlight}>"User"</Text> screen!
+        Street Name: {item.streetName}, Postcode: {item.postcode},DangerLevel:
+        {item.dangerLevel}
       </Text>
-      <Button title="Open Drawer" onPress={openDrawerHandeler} />
     </View>
   );
-}
 
-export default PotholesListScreen;
+  return (
+    <FlatList
+      data={potholes}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id.toString()}
+    />
+  );
+};
 
 const styles = StyleSheet.create({
-  rootContainer: {
+  container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
   },
-  highlight: {
-    fontWeight: "bold",
-    color: "#eb1064",
+  item: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
   },
 });
+
+export default ListOfPotholes;
