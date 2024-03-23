@@ -74,6 +74,7 @@ export const signIn = (email, password) => {
     }
   };
 };
+
 const createUser = async (fullName, email, userId) => {
   const userData = {
     fullName,
