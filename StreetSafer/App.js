@@ -13,6 +13,7 @@ import Signup from "./screens/Signup";
 import React, { useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
+import { COLORS, images, FONTS, SIZES } from "./constants";
 
 const Drawer = createDrawerNavigator();
 
@@ -42,11 +43,11 @@ export default function App() {
       <NavigationContainer>
         <Drawer.Navigator
           screenOptions={{
-            headerStyle: { backgroundColor: "#3c0a6b" },
-            headerTintColor: "white",
-            drawerActiveTintColor: "#3c0a6b",
-            drawerActiveBackgroundColor: "#f0e1ff",
-            drawerStyle: { backgroundColor: "#cccccc" },
+            headerStyle: { backgroundColor: COLORS.background },
+            headerTintColor: COLORS.white,
+            drawerActiveTintColor: COLORS.background,
+            drawerActiveBackgroundColor: COLORS.gray,
+            drawerStyle: { backgroundColor: COLORS.primary },
           }}
         >
           <Drawer.Screen
@@ -141,7 +142,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.background,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: COLORS.primary,
   },
   splashImage: {
     width: 500,
