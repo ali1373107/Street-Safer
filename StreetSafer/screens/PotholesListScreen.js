@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FlatList, View, Text, StyleSheet } from "react-native";
 import { getPotholesByUserId } from "../utils/actions/potholeAction";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Button from "../components/Button";
+import { COLORS, images, FONTS, SIZES } from "../constants";
 
 const ListOfPotholes = () => {
   const [potholes, setPotholes] = useState([]);
@@ -40,11 +42,32 @@ const ListOfPotholes = () => {
   }, []);
 
   const renderItem = ({ item }) => (
-    <View>
-      <Text>
-        Street Name: {item.streetName}, Postcode: {item.postcode},DangerLevel:
-        {item.dangerLevel}
-      </Text>
+    <View style={{ backgroundColor: COLORS.primary }}>
+      <View style={styles.item}>
+        <Text style={{ ...FONTS.h2, color: COLORS.white }}>
+          Street Name: {item.streetName}
+        </Text>
+        <Text style={{ ...FONTS.h2, color: COLORS.white }}>
+          Postcode: {item.postcode}
+        </Text>
+        <Text
+          style={{
+            ...FONTS.h2,
+            color: COLORS.white,
+          }}
+        >
+          DangerLevel:
+          {item.dangerLevel}
+        </Text>
+        <Text style={{ ...FONTS.h2, color: COLORS.white }}>
+          Description:{" "}
+          {item.description ? item.description : "No description provided"}
+        </Text>
+        <View style={styles.container}>
+          <Button style={styles.button} title="Delete" />
+          <Button style={styles.button} title="Edit" />
+        </View>
+      </View>
     </View>
   );
 
@@ -59,15 +82,25 @@ const ListOfPotholes = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: "center",
+    flexDirection: "row",
     justifyContent: "center",
+    marginTop: 20,
   },
   item: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    marginTop: 20,
+    borderColor: COLORS.white,
+    borderWidth: 3,
     padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+  },
+  button: {
+    paddingVertical: 5,
+    paddingHorizontal: 40,
+    borderRadius: 5,
+    marginHorizontal: 30,
   },
 });
 
 export default ListOfPotholes;
+//frameprocessor

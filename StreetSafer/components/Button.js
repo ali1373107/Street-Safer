@@ -12,7 +12,8 @@ const Button = (props) => {
 
   return (
     <TouchableOpacity
-      style={{ ...styles.btn, ...props.style }}
+      //opacity of the button when pressed applied here
+      style={[styles.btn, props.style, isLoading && styles.pressed]}
       onPress={props.onPress}
     >
       {isLoading && isLoading == true ? (
@@ -35,6 +36,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: COLORS.primary,
+  },
+  pressed: {
+    opacity: 0.7,
   },
 });
 export default Button;
