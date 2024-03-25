@@ -20,6 +20,7 @@ export const createPothole = async (
   latitude,
   longitude,
   dangerLevel,
+  description,
   userId
 ) => {
   const pothole = {
@@ -28,6 +29,7 @@ export const createPothole = async (
     latitude,
     longitude,
     dangerLevel,
+    description,
     userId,
   };
   const db = getDatabase();

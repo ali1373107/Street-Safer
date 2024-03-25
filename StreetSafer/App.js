@@ -54,6 +54,8 @@ export default function App() {
             name="PotholesOnMap"
             component={PotholesOnMap}
             options={{
+              //page titles
+              title: "Potholes On Map Screen",
               drawerLabel: "Potholes On Map Screen",
               drawerIcon: ({ color, size }) => (
                 <Ionicons name="map" color={color} size={size} />
@@ -65,6 +67,8 @@ export default function App() {
             name="Profile"
             component={ProfileScreen}
             options={{
+              title: "Profile Screen",
+
               drawerLabel: "Profile Screen",
               drawerIcon: ({ color, size }) => (
                 <Ionicons name="person" color={color} size={size} />
@@ -76,6 +80,8 @@ export default function App() {
             name="Welcome"
             component={WelcomeScreen}
             options={{
+              title: "Welcome Screen",
+
               drawerLabel: "Welcome Screen",
               drawerIcon: ({ color, size }) => (
                 <Ionicons name="home" color={color} size={size} />
@@ -87,6 +93,7 @@ export default function App() {
             component={PotholesListScreen}
             options={{
               drawerLabel: "Potholes List",
+              title: "Potholes List",
 
               drawerIcon: ({ color, size }) => (
                 <Ionicons name="list" color={color} size={size} />
@@ -97,6 +104,8 @@ export default function App() {
             name="AddPothole"
             component={AddPothole}
             options={{
+              title: "Add Pothole Screen",
+
               drawerLabel: "Add Pothole Screen",
               drawerIcon: ({ color, size }) => (
                 <Ionicons name="add" color={color} size={size} />
@@ -107,6 +116,8 @@ export default function App() {
             name="DangerousPotholes "
             component={DangerousPothole}
             options={{
+              title: "Dangerous Potholes Screen",
+
               drawerLabel: "Dangerous Potholes Screen ",
               drawerIcon: ({ color, size }) => (
                 <Ionicons name="alert-outline" color={color} size={size} />
@@ -117,6 +128,8 @@ export default function App() {
             name="Login"
             component={Login}
             options={{
+              title: "Login ",
+
               drawerLabel: "LOGIN",
               drawerIcon: ({ color, size }) => (
                 <Ionicons color={color} size={size} />
@@ -127,6 +140,8 @@ export default function App() {
             name="Signup"
             component={Signup}
             options={{
+              title: "Signup",
+
               drawerLabel: "SIGNUP",
               drawerIcon: ({ color, size }) => (
                 <Ionicons color={color} size={size} />
