@@ -56,3 +56,5 @@ const styles = StyleSheet.create({
   },
 });
 export default Input;
+// style={[styles.btn, props.style, isLoading && styles.pressed]}
+// onPress={props.onPress}
