@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   input: {
-    color: COLORS.gray,
+    color: COLORS.white,
     flex: 1,
     fontFamily: "regular",
     paddingTop: 0,

@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -14,6 +7,7 @@ import { COLORS, images, FONTS, SIZES } from "../constants";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { createPothole } from "../utils/actions/potholeAction";
 import { set } from "firebase/database";
+import * as ImagePicker from "expo-image-picker";
 
 // Function to get the userId of the currently logged-in user
 const getUserId = () => {
@@ -38,6 +32,24 @@ const AddPothole = () => {
   const [longitude, setLongitude] = useState("");
   const [description, setDescription] = useState("");
   const [dangerLevel, setDangerLevel] = useState("Not Dangerous");
+  const [permission, requestPermission] = ImagePicker.useCameraPermissions();
+
+  const takePhoto = async () => {
+    try {
+      const cameraResp = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        quality: 1,
+      });
+
+      if (!cameraResp.canceled) {
+        const { uri } = cameraResp.assets[0];
+        console.log("Image URI", uri);
+      }
+    } catch (e) {
+      Alert.alert("Error Uploading Image " + e.message);
+    }
+  };
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -70,31 +82,38 @@ const AddPothole = () => {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
+      <Input
+        id="streetName"
         placeholder="Street Name"
-        value={streetName}
-        onChangeText={setStreetName}
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={setStreetName}
       />
-      <TextInput
+      <Input
+        id="postcode"
         style={styles.input}
         placeholder="Postcode"
-        value={postcode}
-        onChangeText={setPostcode}
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={setPostcode}
       />
-      <TextInput
-        style={styles.input}
+      <Input
+        id="latitude"
         placeholder="Latitude"
-        value={latitude}
-        onChangeText={setLatitude}
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={setLatitude}
         keyboardType="numeric"
       />
-      <TextInput
-        style={styles.input}
+      <Input
+        id="longitude"
         placeholder="Longitude"
-        value={longitude}
-        onChangeText={setLongitude}
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={setLongitude}
         keyboardType="numeric"
+      />
+      <Input
+        id="description"
+        placeholder="Description"
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={setDescription}
       />
       <Text style={styles.label}>Danger Level:</Text>
       <Picker
@@ -102,16 +121,33 @@ const AddPothole = () => {
         style={styles.picker}
         onValueChange={(itemValue) => setDangerLevel(itemValue)}
       >
-        <Picker.Item label="Not Dangerous" value="Not Dangerous" />
-        <Picker.Item label="Likely Dangerous" value="Likely Dangerous" />
-        <Picker.Item label="Dangerous" value="Dangerous" />
+        <Picker.Item
+          label="Not Dangerous"
+          value="Not Dangerous"
+          color="white"
+        />
+        <Picker.Item
+          label="Likely Dangerous"
+          value="Likely Dangerous"
+          color="white"
+        />
+        <Picker.Item label="Dangerous" value="Dangerous" color="white" />
       </Picker>
-      <TextInput
-        style={styles.input}
-        placeholder="Descriptio "
-        value={postcode}
-        onChangeText={setPostcode}
-      />
+      {permission?.status !== ImagePicker.PermissionStatus.GRANTED && (
+        <Button
+          title="Take Picture"
+          onPress={requestPermission}
+          style={{ width: SIZES.width - 32, marginVertical: 8 }}
+        />
+      )}
+
+      {permission?.status === ImagePicker.PermissionStatus.GRANTED && (
+        <Button
+          title="Take Picture"
+          onPress={takePhoto}
+          style={{ width: SIZES.width - 32, marginVertical: 8 }}
+        />
+      )}
       <Button
         title="SUBMIT"
         onPress={handleSubmit}
@@ -126,17 +162,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: COLORS.background,
   },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
+
   label: {
-    fontSize: 16,
-    marginBottom: 5,
+    fontSize: 25,
+    marginBottom: -40,
+    color: COLORS.white,
+    textAlign: "center",
+    marginTop: 15,
+    borderRadius: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray,
   },
   picker: {
     marginBottom: 10,
