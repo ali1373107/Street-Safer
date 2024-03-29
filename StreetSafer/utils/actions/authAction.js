@@ -21,7 +21,12 @@ export const signUp = (fullName, email, password) => {
       const { uid, stsTokenManager } = result.user;
       const { accessToken, expirationTime } = stsTokenManager;
       const expiryDate = new Date(expirationTime);
-      const userData = await createUser(fullName, email, uid);
+      const userData = await createUser(
+        fullName,
+        email,
+        uid,
+        (isAdmin = false)
+      );
       dispatch(authenticate({ token: accessToken, userData }));
       saveToDataStorage(accessToken, uid, expiryDate);
     } catch (error) {
@@ -81,6 +86,7 @@ const createUser = async (fullName, email, userId) => {
     email,
     userId,
     signUpData: new Date().toISOString(),
+    isAdmin: false,
   };
   const dbRef = ref(getDatabase());
   const childRef = child(dbRef, `users/${userId}`);

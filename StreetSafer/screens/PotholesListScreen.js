@@ -30,6 +30,8 @@ const ListOfPotholes = () => {
     const fetchPotholes = async () => {
       try {
         const currentUserId = await getUserId();
+        console.log("User ID:", currentUserId);
+
         setUserId(currentUserId);
         const fetchedPotholes = await getPotholesByUserId(currentUserId);
         setPotholes(fetchedPotholes);
