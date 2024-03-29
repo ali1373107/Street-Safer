@@ -1,4 +1,5 @@
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getStorage, uploadBytes } from "firebase/storage";
+import { getFirebaseApp } from "../firebaseHelper";
 
 ///
 import {
@@ -20,6 +21,8 @@ export const createPothole = async (
   latitude,
   longitude,
   dangerLevel,
+  description,
+  imageUrl,
   userId
 ) => {
   const pothole = {
@@ -28,9 +31,13 @@ export const createPothole = async (
     latitude,
     longitude,
     dangerLevel,
+    description,
+    imageUrl,
     userId,
   };
-  const db = getDatabase();
+  const app = getFirebaseApp();
+
+  const db = getDatabase(app);
   try {
     // Push the pothole data to generate a unique ID
     const potholesRef = ref(db, "potholes");
@@ -51,7 +58,9 @@ export const createPothole = async (
 export const getPotholesByUserId = async (userId) => {
   try {
     // Get a reference to the database
-    const db = getDatabase();
+    const app = getFirebaseApp();
+
+    const db = getDatabase(app);
 
     // Create a query to retrieve potholes with matching user ID
     const potholesRef = ref(db, "potholes");
@@ -78,4 +87,66 @@ export const getPotholesByUserId = async (userId) => {
     throw error; // Re-throw the error to be caught by the caller
   }
 };
+export const getDangerousPotholes = async (dangerLevel = "Dangerous") => {
+  try {
+    // Get a reference to the database
+    const app = getFirebaseApp();
+
+    const db = getDatabase(app);
+
+    // Create a query to retrieve potholes with matching user ID
+    const potholesRef = ref(db, "potholes");
+    const dangerpotholesQuery = query(
+      potholesRef,
+      orderByChild("dangerLevel"),
+      equalTo(dangerLevel)
+    );
+
+    // Retrieve potholes matching the query
+    const snapshot = await get(dangerpotholesQuery);
+
+    // Convert snapshot to an array of potholes
+
+    const DangerousPotholes = [];
+    snapshot.forEach((childSnapshot) => {
+      const pothole = childSnapshot.val();
+      DangerousPotholes.push({ id: childSnapshot.key, ...pothole });
+    });
+
+    return DangerousPotholes;
+  } catch (error) {
+    // Handle any errors
+    console.error("Error retrieving potholes:", error);
+    throw error; // Re-throw the error to be caught by the caller
+  }
+};
+
+export const storeImageToStorage = async (imageUrl, userId) => {
+  try {
+    // Get a reference to the storage
+    console.log("response", "conole.log ineStoreImageToStorage");
+
+    const app = getFirebaseApp();
+
+    console.log(userId, "userId");
+    const storage = getStorage(app);
+    console.log("response", "inamshod");
+
+    const storageRef = ref(storage, `images/${userId}`);
+
+    const response = await fetch(imageUrl);
+    console.log("response", response);
+    const blob = await response.blob();
+
+    const uploadSnapshot = await uploadBytes(storageRef, blob);
+    const uploadedFileRef = uploadSnapshot.ref;
+
+    const downloadUrl = await uploadedFileRef.getDownloadURL();
+    return downloadUrl;
+  } catch (error) {
+    console.error("Error storing image to Firebase Storage:", error);
+    throw error;
+  }
+};
+
 ///https://reactnative.dev/docs/pressable

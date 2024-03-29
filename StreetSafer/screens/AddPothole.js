@@ -1,18 +1,13 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { createPothole } from "../utils/actions/potholeAction";
+import * as ImagePicker from "expo-image-picker";
+import { storeImageToStorage } from "../utils/actions/potholeAction";
 
 // Function to get the userId of the currently logged-in user
 const getUserId = () => {
@@ -35,7 +30,37 @@ const AddPothole = () => {
   const [postcode, setPostcode] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const [description, setDescription] = useState("");
   const [dangerLevel, setDangerLevel] = useState("Not Dangerous");
+  const [permission, requestPermission] = ImagePicker.useCameraPermissions();
+  const [imageUrl, setImageUrl] = useState("");
+
+  const takePhoto = async () => {
+    const userId = await getUserId();
+
+    try {
+      const cameraResp = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        quality: 1,
+      });
+
+      if (!cameraResp.canceled) {
+        const { uri } = cameraResp.assets[0];
+        console.log("Image URI", uri);
+        const fileName = uri.split("/").pop();
+
+        setImageUrl(uri);
+        console.log("Image vase badesh", uri);
+
+        await storeImageToStorage(uri, fileName, (v) =>
+          console.log("Image URL", v)
+        );
+      }
+    } catch (e) {
+      Alert.alert("Error Uploading Image " + e.message);
+    }
+  };
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -47,6 +72,8 @@ const AddPothole = () => {
         latitude,
         longitude,
         dangerLevel,
+        description,
+        imageUrl,
         userId
       );
       console.log("Pothole created successfully");
@@ -56,6 +83,7 @@ const AddPothole = () => {
       setLatitude("");
       setLongitude("");
       setDangerLevel("Not Dangerous");
+      setDescription("");
     } catch (error) {
       console.error("Error creating pothole:", error);
       // Handle error (e.g., display error message to user)
@@ -63,33 +91,62 @@ const AddPothole = () => {
       setIsLoading(false);
     }
   };
+  const inputChangedHandler = (inputId, text) => {
+    switch (inputId) {
+      case "streetName":
+        setStreetName(text);
+        break;
+      case "postcode":
+        setPostcode(text);
+        break;
+      case "latitude":
+        setLatitude(text);
+        break;
+      case "longitude":
+        setLongitude(text);
+        break;
+      case "description":
+        setDescription(text);
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
+      <Input
+        id="streetName"
         placeholder="Street Name"
-        value={streetName}
-        onChangeText={setStreetName}
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={inputChangedHandler}
       />
-      <TextInput
+      <Input
+        id="postcode"
         style={styles.input}
         placeholder="Postcode"
-        value={postcode}
-        onChangeText={setPostcode}
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={inputChangedHandler}
+      />
+      <Input
+        id="latitude"
+        placeholder="Latitude"
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={inputChangedHandler}
         keyboardType="numeric"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Latitude"
-        value={latitude}
-        onChangeText={setLatitude}
-      />
-      <TextInput
-        style={styles.input}
+      <Input
+        id="longitude"
         placeholder="Longitude"
-        value={longitude}
-        onChangeText={setLongitude}
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={inputChangedHandler}
+        keyboardType="numeric"
+      />
+      <Input
+        id="description"
+        placeholder="Description"
+        placeholderTextColor={COLORS.gray}
+        onInputChanged={inputChangedHandler}
       />
       <Text style={styles.label}>Danger Level:</Text>
       <Picker
@@ -97,10 +154,33 @@ const AddPothole = () => {
         style={styles.picker}
         onValueChange={(itemValue) => setDangerLevel(itemValue)}
       >
-        <Picker.Item label="Not Dangerous" value="Not Dangerous" />
-        <Picker.Item label="Likely Dangerous" value="Likely Dangerous" />
-        <Picker.Item label="Dangerous" value="Dangerous" />
+        <Picker.Item
+          label="Not Dangerous"
+          value="Not Dangerous"
+          color="white"
+        />
+        <Picker.Item
+          label="Likely Dangerous"
+          value="Likely Dangerous"
+          color="white"
+        />
+        <Picker.Item label="Dangerous" value="Dangerous" color="white" />
       </Picker>
+      {permission?.status !== ImagePicker.PermissionStatus.GRANTED && (
+        <Button
+          title="Take Picture"
+          onPress={requestPermission}
+          style={{ width: SIZES.width - 32, marginVertical: 8 }}
+        />
+      )}
+
+      {permission?.status === ImagePicker.PermissionStatus.GRANTED && (
+        <Button
+          title="Take Picture"
+          onPress={takePhoto}
+          style={{ width: SIZES.width - 32, marginVertical: 8 }}
+        />
+      )}
       <Button
         title="SUBMIT"
         onPress={handleSubmit}
@@ -115,17 +195,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: COLORS.background,
   },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
+
   label: {
-    fontSize: 16,
-    marginBottom: 5,
+    fontSize: 25,
+    marginBottom: -40,
+    color: COLORS.white,
+    textAlign: "center",
+    marginTop: 15,
+    borderRadius: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray,
   },
   picker: {
     marginBottom: 10,

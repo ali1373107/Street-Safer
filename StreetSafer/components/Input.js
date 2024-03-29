@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   input: {
-    color: COLORS.gray,
+    color: COLORS.white,
     flex: 1,
     fontFamily: "regular",
     paddingTop: 0,
@@ -56,3 +56,5 @@ const styles = StyleSheet.create({
   },
 });
 export default Input;
+// style={[styles.btn, props.style, isLoading && styles.pressed]}
+// onPress={props.onPress}
