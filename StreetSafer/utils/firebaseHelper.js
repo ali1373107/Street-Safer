@@ -23,5 +23,6 @@ export const getFirebaseApp = () => {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage),
   });
   firebaseApp = app;
+
   return app;
 };

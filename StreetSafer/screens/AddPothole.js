@@ -6,8 +6,8 @@ import Button from "../components/Button";
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { createPothole } from "../utils/actions/potholeAction";
-import { set } from "firebase/database";
 import * as ImagePicker from "expo-image-picker";
+import { storeImageToStorage } from "../utils/actions/potholeAction";
 
 // Function to get the userId of the currently logged-in user
 const getUserId = () => {
@@ -33,8 +33,11 @@ const AddPothole = () => {
   const [description, setDescription] = useState("");
   const [dangerLevel, setDangerLevel] = useState("Not Dangerous");
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
+  const [imageUrl, setImageUrl] = useState("");
 
   const takePhoto = async () => {
+    const userId = await getUserId();
+
     try {
       const cameraResp = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
@@ -45,6 +48,14 @@ const AddPothole = () => {
       if (!cameraResp.canceled) {
         const { uri } = cameraResp.assets[0];
         console.log("Image URI", uri);
+        const fileName = uri.split("/").pop();
+
+        setImageUrl(uri);
+        console.log("Image vase badesh", uri);
+
+        await storeImageToStorage(uri, fileName, (v) =>
+          console.log("Image URL", v)
+        );
       }
     } catch (e) {
       Alert.alert("Error Uploading Image " + e.message);
@@ -62,6 +73,7 @@ const AddPothole = () => {
         longitude,
         dangerLevel,
         description,
+        imageUrl,
         userId
       );
       console.log("Pothole created successfully");
@@ -79,6 +91,27 @@ const AddPothole = () => {
       setIsLoading(false);
     }
   };
+  const inputChangedHandler = (inputId, text) => {
+    switch (inputId) {
+      case "streetName":
+        setStreetName(text);
+        break;
+      case "postcode":
+        setPostcode(text);
+        break;
+      case "latitude":
+        setLatitude(text);
+        break;
+      case "longitude":
+        setLongitude(text);
+        break;
+      case "description":
+        setDescription(text);
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -86,34 +119,34 @@ const AddPothole = () => {
         id="streetName"
         placeholder="Street Name"
         placeholderTextColor={COLORS.gray}
-        onInputChanged={setStreetName}
+        onInputChanged={inputChangedHandler}
       />
       <Input
         id="postcode"
         style={styles.input}
         placeholder="Postcode"
         placeholderTextColor={COLORS.gray}
-        onInputChanged={setPostcode}
+        onInputChanged={inputChangedHandler}
       />
       <Input
         id="latitude"
         placeholder="Latitude"
         placeholderTextColor={COLORS.gray}
-        onInputChanged={setLatitude}
+        onInputChanged={inputChangedHandler}
         keyboardType="numeric"
       />
       <Input
         id="longitude"
         placeholder="Longitude"
         placeholderTextColor={COLORS.gray}
-        onInputChanged={setLongitude}
+        onInputChanged={inputChangedHandler}
         keyboardType="numeric"
       />
       <Input
         id="description"
         placeholder="Description"
         placeholderTextColor={COLORS.gray}
-        onInputChanged={setDescription}
+        onInputChanged={inputChangedHandler}
       />
       <Text style={styles.label}>Danger Level:</Text>
       <Picker

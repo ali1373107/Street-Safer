@@ -1,64 +1,91 @@
-import { StatusBar } from "expo-status-bar";
+import React, { useState, useEffect } from "react";
 import {
-  StyleSheet,
-  Text,
+  FlatList,
   View,
-  Button,
-  Alert,
-  SafeAreaView,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import { useState, useEffect } from "react";
+import { getDangerousPotholes } from "../utils/actions/potholeAction";
+import { COLORS, FONTS } from "../constants";
 
-export default function App() {
-  const [permission, requestPermission] = ImagePicker.useCameraPermissions();
+const ListOfDangerousPotholes = () => {
+  const [potholes, setPotholes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  /**
-   *
-   */
-  const takePhoto = async () => {
-    try {
-      const cameraResp = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        quality: 1,
-      });
-
-      if (!cameraResp.canceled) {
-        const { uri } = cameraResp.assets[0];
-        console.log("Image URI", uri);
+  useEffect(() => {
+    const fetchDangerousPotholes = async () => {
+      try {
+        const fetchedPotholes = await getDangerousPotholes();
+        setPotholes(fetchedPotholes);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching potholes:", error);
+        setLoading(false);
       }
-    } catch (e) {
-      Alert.alert("Error Uploading Image " + e.message);
-    }
-  };
+    };
+    fetchDangerousPotholes();
+  }, []);
 
-  // permission check
-  if (permission?.status !== ImagePicker.PermissionStatus.GRANTED) {
+  const renderItem = ({ item }) => (
+    <View style={styles.itemContainer}>
+      <Text style={styles.text}>Street Name: {item.streetName}</Text>
+      <Text style={styles.text}>Postcode: {item.postcode}</Text>
+      <Text style={styles.text}>Danger Level: {item.dangerLevel}</Text>
+      <Text style={styles.text}>
+        Description:{" "}
+        {item.description ? item.description : "No description provided"}
+      </Text>
+    </View>
+  );
+
+  if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Permission Not Granted - {permission?.status}</Text>
-        <StatusBar style="auto" />
-        <Button title="Request Permission" onPress={requestPermission}></Button>
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
 
-  // main UI
-  return (
-    <SafeAreaView style={styles.container}>
+  if (potholes.length === 0) {
+    return (
       <View style={styles.container}>
-        <Text>Working With Firebase and Image Picker</Text>
-        <StatusBar style="auto" />
-        <Button title="Take Picture" onPress={takePhoto}></Button>
+        <Text style={styles.noDataText}>No dangerous potholes found.</Text>
       </View>
-    </SafeAreaView>
+    );
+  }
+
+  return (
+    <FlatList
+      data={potholes}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id.toString()}
+    />
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  itemContainer: {
+    backgroundColor: COLORS.background,
+    marginVertical: 10,
+    padding: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.gray,
+  },
+  text: {
+    ...FONTS.body3,
+    color: COLORS.white,
+  },
+  noDataText: {
+    ...FONTS.body2,
+    color: COLORS.white,
   },
 });
+
+export default ListOfDangerousPotholes;
