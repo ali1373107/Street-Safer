@@ -140,5 +140,65 @@ export const reportExistingPothole = async (
     throw error; // Re-throw the error to be caught by the caller
   }
 };
+export const getPotholes = async () => {
+  try {
+    // Get a reference to the database
+    const app = getFirebaseApp();
+
+    const db = getDatabase(app);
+
+    // Create a query to retrieve potholes with matching user ID
+    const potholesRef = ref(db, "potholes");
+    const snapshot = await get(potholesRef);
+
+    // Retrieve potholes matching the query
+
+    // Convert snapshot to an array of potholes
+
+    const allPotholes = [];
+    snapshot.forEach((childSnapshot) => {
+      const potholes = childSnapshot.val();
+      allPotholes.push({ id: childSnapshot.key, ...potholes });
+    });
+
+    return allPotholes;
+  } catch (error) {
+    // Handle any errors
+    console.error("Error retrieving potholes:", error);
+    throw error; // Re-throw the error to be caught by the caller
+  }
+};
+
+export const reportExistingPothole = async (
+  potholeId,
+  comment,
+  userId,
+  selectedOptions
+) => {
+  const report = {
+    potholeId,
+    comment,
+    userId,
+    selectedOptions,
+  };
+  const app = getFirebaseApp();
+  const db = getDatabase(app);
+  try {
+    // Push the pothole data to generate a unique ID
+    const reportsRef = ref(db, `reports`);
+    const newReportRef = push(reportsRef);
+    const reportId = newReportRef.key;
+
+    // Set the pothole data under the unique ID
+    await set(newReportRef, report);
+
+    // Return the pothole data along with the generated ID
+    return { ...report, id: reportId };
+  } catch (error) {
+    // Handle any errors
+    console.error("Error creating pothole:", error);
+    throw error; // Re-throw the error to be caught by the caller
+  }
+};
 
 ///https://reactnative.dev/docs/pressable
