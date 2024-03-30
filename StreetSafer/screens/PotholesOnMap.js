@@ -97,11 +97,15 @@ function PotholesOnMap() {
           </MapView>
           {selectedPothole && (
             <View style={styles.container2}>
-              <View style={styles.header}>
-                <Text style={styles.title}>Report existing Pothole</Text>
+              <View>
                 <TouchableOpacity onPress={() => setSelectedPothole(null)}>
                   <Text style={styles.cancelButton}>X</Text>
                 </TouchableOpacity>
+              </View>
+              <Text>Upload an image of the pothole</Text>
+              <PotholeImage selectedPothole={selectedPothole} />
+              <View style={styles.header}>
+                <Text style={styles.title}>Report existing Pothole</Text>
               </View>
               <ReportOptions handleOptionSelection={handleOptionSelection} />
               <View>
@@ -133,9 +137,6 @@ function PotholesOnMap() {
                 value={reportText}
                 onChangeText={setReportText}
               />
-
-              <Text>Upload an image of the pothole</Text>
-              <PotholeImage selectedPothole={selectedPothole} />
 
               <Button
                 title="Submit"
@@ -178,10 +179,10 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     fontSize: 20,
-    color: "red",
+    color: "gray",
     marginLeft: 1,
     position: "absolute",
-    marginTop: -30,
+    marginTop: -20,
   },
   container2: {
     backgroundColor: COLORS.primary,
