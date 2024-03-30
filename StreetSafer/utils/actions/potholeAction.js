@@ -1,9 +1,7 @@
-import { getStorage, uploadBytes } from "firebase/storage";
 import { getFirebaseApp } from "../firebaseHelper";
 
 ///
 import {
-  child,
   getDatabase,
   ref,
   set,
@@ -36,7 +34,6 @@ export const createPothole = async (
     userId,
   };
   const app = getFirebaseApp();
-
   const db = getDatabase(app);
   try {
     // Push the pothole data to generate a unique ID
@@ -121,38 +118,10 @@ export const getDangerousPotholes = async (dangerLevel = "Dangerous") => {
   }
 };
 
-export const storeImageToStorage = async (imageUrl, userId) => {
-  try {
-    // Get a reference to the storage
-    console.log("response", "conole.log ineStoreImageToStorage");
-
-    const app = getFirebaseApp();
-
-    console.log(userId, "userId");
-    const storage = getStorage(app);
-    console.log("response", "inamshod");
-
-    const storageRef = ref(storage, `images/${userId}`);
-
-    const response = await fetch(imageUrl);
-    console.log("response", response);
-    const blob = await response.blob();
-
-    const uploadSnapshot = await uploadBytes(storageRef, blob);
-    const uploadedFileRef = uploadSnapshot.ref;
-
-    const downloadUrl = await uploadedFileRef.getDownloadURL();
-    return downloadUrl;
-  } catch (error) {
-    console.error("Error storing image to Firebase Storage:", error);
-    throw error;
-  }
-};
 export const getPotholes = async () => {
   try {
     // Get a reference to the database
     const app = getFirebaseApp();
-
     const db = getDatabase(app);
 
     // Create a query to retrieve potholes with matching user ID
