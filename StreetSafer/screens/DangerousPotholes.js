@@ -16,9 +16,10 @@ const ListOfDangerousPotholes = () => {
   useEffect(() => {
     const fetchDangerousPotholes = async () => {
       try {
-        const fetchedPotholes = await getDangerousPotholes();
-        setPotholes(fetchedPotholes);
-        setLoading(false);
+        await getDangerousPotholes("Dangerous", (fetchedPotholes) => {
+          setPotholes(fetchedPotholes);
+          setLoading(false);
+        });
       } catch (error) {
         console.error("Error fetching potholes:", error);
         setLoading(false);

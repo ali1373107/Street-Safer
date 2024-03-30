@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import { COLORS, images, FONTS, SIZES } from "../constants";
+import { COLORS, SIZES } from "../constants";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { createPothole } from "../utils/actions/potholeAction";
 import * as ImagePicker from "expo-image-picker";
-import { storeImageToStorage } from "../utils/actions/potholeAction";
+import { storeImageToStorage } from "../utils/firebaseHelper";
 
 // Function to get the userId of the currently logged-in user
 const getUserId = () => {
@@ -33,11 +33,8 @@ const AddPothole = () => {
   const [description, setDescription] = useState("");
   const [dangerLevel, setDangerLevel] = useState("Not Dangerous");
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
-  const [imageUrl, setImageUrl] = useState("");
-
+  const [image, setImage] = useState("");
   const takePhoto = async () => {
-    const userId = await getUserId();
-
     try {
       const cameraResp = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
@@ -48,14 +45,7 @@ const AddPothole = () => {
       if (!cameraResp.canceled) {
         const { uri } = cameraResp.assets[0];
         console.log("Image URI", uri);
-        const fileName = uri.split("/").pop();
-
-        setImageUrl(uri);
-        console.log("Image vase badesh", uri);
-
-        await storeImageToStorage(uri, fileName, (v) =>
-          console.log("Image URL", v)
-        );
+        setImage(uri);
       }
     } catch (e) {
       Alert.alert("Error Uploading Image " + e.message);
@@ -65,6 +55,7 @@ const AddPothole = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
+      const name = image.split("/").pop();
       const userId = await getUserId();
       await createPothole(
         streetName,
@@ -73,9 +64,11 @@ const AddPothole = () => {
         longitude,
         dangerLevel,
         description,
-        imageUrl,
+        name,
         userId
       );
+
+      await storeImageToStorage(image, name);
       console.log("Pothole created successfully");
       // Reset form fields after successful submission
       setStreetName("");
@@ -133,14 +126,12 @@ const AddPothole = () => {
         placeholder="Latitude"
         placeholderTextColor={COLORS.gray}
         onInputChanged={inputChangedHandler}
-        keyboardType="numeric"
       />
       <Input
         id="longitude"
         placeholder="Longitude"
         placeholderTextColor={COLORS.gray}
         onInputChanged={inputChangedHandler}
-        keyboardType="numeric"
       />
       <Input
         id="description"
@@ -157,14 +148,14 @@ const AddPothole = () => {
         <Picker.Item
           label="Not Dangerous"
           value="Not Dangerous"
-          color="white"
+          color={COLORS.white}
         />
         <Picker.Item
           label="Likely Dangerous"
           value="Likely Dangerous"
-          color="white"
+          color={COLORS.white}
         />
-        <Picker.Item label="Dangerous" value="Dangerous" color="white" />
+        <Picker.Item label="Dangerous" value="Dangerous" color={COLORS.white} />
       </Picker>
       {permission?.status !== ImagePicker.PermissionStatus.GRANTED && (
         <Button
@@ -212,7 +203,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: "blue",
     padding: 10,
     borderRadius: 5,
     alignItems: "center",

@@ -1,6 +1,13 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  listAll,
+} from "firebase/storage";
 
 let firebaseApp;
 export const getFirebaseApp = () => {
@@ -25,4 +32,38 @@ export const getFirebaseApp = () => {
   firebaseApp = app;
 
   return app;
+};
+export const storeImageToStorage = async (uri, name) => {
+  try {
+    const storage = getStorage();
+    const storageRef = ref(storage, `images/${name}`);
+    const fetchResponse = await fetch(uri);
+
+    const theBlob = await fetchResponse.blob();
+
+    const uploadTask = uploadBytesResumable(storageRef, theBlob);
+
+    // Listen for state changes, errors, and completion of the upload.
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log("Upload is " + progress + "% done");
+      },
+      (error) => {
+        console.error("Error uploading image:", error);
+      },
+      () => {
+        // Upload completed successfully, now we can get the download URL
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          console.log("File available at", downloadURL);
+        });
+      }
+    );
+  } catch (error) {
+    console.error("Error storing image to Firebase Storage:", error);
+    throw error;
+  }
 };

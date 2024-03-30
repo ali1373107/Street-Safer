@@ -10,44 +10,62 @@ const ReportOptions = ({ handleOptionSelection }) => {
       [option]: !selectedOptions[option],
     };
     setSelectedOptions(updatedOptions);
-    handleOptionSelection(updatedOptions);
-  };
 
+    const selectedOptionsArray = Object.keys(updatedOptions).filter(
+      (key) => updatedOptions[key]
+    );
+    handleOptionSelection(selectedOptionsArray);
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.legend}>Choose options</Text>
 
-      <TouchableOpacity onPress={() => toggleOption("false")}>
+      <TouchableOpacity onPress={() => toggleOption("false_information")}>
         <View style={styles.option}>
           <View
-            style={[styles.checkbox, selectedOptions.false && styles.checked]}
+            style={[
+              styles.checkbox,
+              selectedOptions.false_information && styles.checked,
+            ]}
           />
           <Text style={styles.label}>False Information</Text>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => toggleOption("scam")}>
+      <TouchableOpacity onPress={() => toggleOption("scam_or_fraud")}>
         <View style={styles.option}>
           <View
-            style={[styles.checkbox, selectedOptions.scam && styles.checked]}
+            style={[
+              styles.checkbox,
+              selectedOptions.scam_or_fraud && styles.checked,
+            ]}
           />
           <Text style={styles.label}>Scam or Fraud</Text>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => toggleOption("hate")}>
+      <TouchableOpacity onPress={() => toggleOption("hate_speech_or_Symbole")}>
         <View style={styles.option}>
           <View
-            style={[styles.checkbox, selectedOptions.hate && styles.checked]}
+            style={[
+              styles.checkbox,
+              selectedOptions.hate_speech_or_Symbole && styles.checked,
+            ]}
           />
           <Text style={styles.label}>Hate Speech or Symbols</Text>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => toggleOption("info")}>
+      <TouchableOpacity
+        onPress={() => toggleOption("Sharing_Image_or_Details_of_Others")}
+      >
         <View style={styles.option}>
           <View
-            style={[styles.checkbox, selectedOptions.info && styles.checked]}
+            style={[
+              styles.checkbox,
+              selectedOptions.Sharing_Image_or_Details_of_Others &&
+                styles.checked,
+            ]}
           />
           <Text style={styles.label}>Sharing Image or Details of Others</Text>
         </View>

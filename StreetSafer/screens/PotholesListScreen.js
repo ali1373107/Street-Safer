@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { FlatList, View, Text, StyleSheet } from "react-native";
-import { getPotholesByUserId } from "../utils/actions/potholeAction";
+//import { getPotholesByUserId } from "../utils/actions/potholeAction";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Button from "../components/Button";
 import { COLORS, images, FONTS, SIZES } from "../constants";
-
+import {
+  getDatabase,
+  ref,
+  query,
+  orderByChild,
+  equalTo,
+  onValue,
+  off,
+} from "firebase/database";
 const ListOfPotholes = () => {
   const [potholes, setPotholes] = useState([]);
-  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     // Function to retrieve the current user's ID
@@ -38,6 +45,30 @@ const ListOfPotholes = () => {
       } catch (error) {
         console.error("Error fetching potholes:", error);
       }
+      const userId = await getUserId();
+
+      const db = getDatabase();
+      const potholesRef = ref(db, "potholes");
+      const potholesQuery = query(
+        potholesRef,
+        orderByChild("userId"),
+        equalTo(userId)
+      );
+      const listener = onValue(potholesQuery, (snapshot) => {
+        const potholesData = snapshot.val();
+        if (potholesData) {
+          const potholesArray = Object.entries(potholesData).map(
+            ([key, value]) => ({ id: key, ...value })
+          );
+          setPotholes(potholesArray);
+        } else {
+          setPotholes([]);
+        }
+      });
+      return () => {
+        // Unsubscribe from real-time updates when the component unmounts
+        off(listener);
+      };
     };
 
     fetchPotholes();
