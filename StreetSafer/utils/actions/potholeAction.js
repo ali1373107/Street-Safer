@@ -1,5 +1,4 @@
 import { getFirebaseApp } from "../firebaseHelper";
-
 ///
 import {
   getDatabase,
@@ -8,6 +7,7 @@ import {
   equalTo,
   orderByChild,
   query,
+  onValue,
   get,
 } from "firebase/database";
 import { push } from "firebase/database";
@@ -52,43 +52,10 @@ export const createPothole = async (
     throw error; // Re-throw the error to be caught by the caller
   }
 };
-export const getPotholesByUserId = async (userId) => {
+export const getDangerousPotholes = (dangerLevel = "Dangerous", callback) => {
   try {
     // Get a reference to the database
     const app = getFirebaseApp();
-
-    const db = getDatabase(app);
-
-    // Create a query to retrieve potholes with matching user ID
-    const potholesRef = ref(db, "potholes");
-    const potholesQuery = query(
-      potholesRef,
-      orderByChild("userId"),
-      equalTo(userId)
-    );
-
-    // Retrieve potholes matching the query
-    const snapshot = await get(potholesQuery);
-
-    // Convert snapshot to an array of potholes
-    const potholes = [];
-    snapshot.forEach((childSnapshot) => {
-      const pothole = childSnapshot.val();
-      potholes.push({ id: childSnapshot.key, ...pothole });
-    });
-
-    return potholes;
-  } catch (error) {
-    // Handle any errors
-    console.error("Error retrieving potholes:", error);
-    throw error; // Re-throw the error to be caught by the caller
-  }
-};
-export const getDangerousPotholes = async (dangerLevel = "Dangerous") => {
-  try {
-    // Get a reference to the database
-    const app = getFirebaseApp();
-
     const db = getDatabase(app);
 
     // Create a query to retrieve potholes with matching user ID
@@ -99,64 +66,60 @@ export const getDangerousPotholes = async (dangerLevel = "Dangerous") => {
       equalTo(dangerLevel)
     );
 
-    // Retrieve potholes matching the query
-    const snapshot = await get(dangerpotholesQuery);
+    // Listen for potholes matching the query
+    onValue(dangerpotholesQuery, (snapshot) => {
+      // Convert snapshot to an array of potholes
+      const DangerousPotholes = [];
+      snapshot.forEach((childSnapshot) => {
+        const pothole = childSnapshot.val();
+        DangerousPotholes.push({ id: childSnapshot.key, ...pothole });
+      });
 
-    // Convert snapshot to an array of potholes
-
-    const DangerousPotholes = [];
-    snapshot.forEach((childSnapshot) => {
-      const pothole = childSnapshot.val();
-      DangerousPotholes.push({ id: childSnapshot.key, ...pothole });
+      // Call the callback function with the updated potholes
+      callback(DangerousPotholes);
     });
-
-    return DangerousPotholes;
   } catch (error) {
     // Handle any errors
     console.error("Error retrieving potholes:", error);
     throw error; // Re-throw the error to be caught by the caller
   }
 };
+export const getPotholes = (setPotholes) => {
+  const app = getFirebaseApp();
+  const db = getDatabase(app);
+  const potholesRef = ref(db, "potholes");
 
-export const getPotholes = async () => {
-  try {
-    // Get a reference to the database
-    const app = getFirebaseApp();
-    const db = getDatabase(app);
+  const listener = onValue(potholesRef, (snapshot) => {
+    const potholesData = snapshot.val();
+    if (potholesData) {
+      const potholesArray = Object.entries(potholesData).map(
+        ([key, value]) => ({ id: key, ...value })
+      );
+      setPotholes(potholesArray);
+    } else {
+      setPotholes([]);
+    }
+  });
 
-    // Create a query to retrieve potholes with matching user ID
-    const potholesRef = ref(db, "potholes");
-    const snapshot = await get(potholesRef);
-
-    // Retrieve potholes matching the query
-
-    // Convert snapshot to an array of potholes
-
-    const allPotholes = [];
-    snapshot.forEach((childSnapshot) => {
-      const potholes = childSnapshot.val();
-      allPotholes.push({ id: childSnapshot.key, ...potholes });
-    });
-
-    return allPotholes;
-  } catch (error) {
-    // Handle any errors
-    console.error("Error retrieving potholes:", error);
-    throw error; // Re-throw the error to be caught by the caller
-  }
+  return () => off(potholesRef, listener);
 };
 
 export const reportExistingPothole = async (
   potholeId,
   comment,
   userId,
-  selectedOptions
+  selectedOptions,
+  reciveUpdate,
+  email
 ) => {
   const report = {
     potholeId,
     comment,
     userId,
     selectedOptions,
+    reciveUpdate,
+
+    email,
   };
   const app = getFirebaseApp();
   const db = getDatabase(app);

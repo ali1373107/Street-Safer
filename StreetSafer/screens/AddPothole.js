@@ -58,7 +58,6 @@ const AddPothole = () => {
     setIsLoading(true);
     try {
       const name = image.split("/").pop();
-      setImageUrl(name);
       const userId = await getUserId();
       await createPothole(
         streetName,
@@ -129,14 +128,12 @@ const AddPothole = () => {
         placeholder="Latitude"
         placeholderTextColor={COLORS.gray}
         onInputChanged={inputChangedHandler}
-        keyboardType="numeric"
       />
       <Input
         id="longitude"
         placeholder="Longitude"
         placeholderTextColor={COLORS.gray}
         onInputChanged={inputChangedHandler}
-        keyboardType="numeric"
       />
       <Input
         id="description"
