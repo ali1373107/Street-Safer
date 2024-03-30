@@ -17,27 +17,7 @@ import { COLORS, images, FONTS, SIZES } from "./constants";
 
 const Drawer = createDrawerNavigator();
 
-const Splash = () => (
-  <View style={styles.splashContainer}>
-    <Image
-      source={require("./assets/images/splash.png")}
-      resizeMode="contain"
-      style={styles.splashImage}
-    />
-  </View>
-);
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000); // Simulated 3 seconds of loading time
-  }, []);
-
-  if (isLoading) {
-    return <Splash />;
-  }
   return (
     <Provider store={store}>
       <NavigationContainer>

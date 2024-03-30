@@ -33,7 +33,6 @@ const AddPothole = () => {
   const [description, setDescription] = useState("");
   const [dangerLevel, setDangerLevel] = useState("Not Dangerous");
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
-  const [imageUrl, setImageUrl] = useState("");
   const [image, setImage] = useState("");
   const takePhoto = async () => {
     try {
@@ -47,7 +46,6 @@ const AddPothole = () => {
         const { uri } = cameraResp.assets[0];
         console.log("Image URI", uri);
         setImage(uri);
-        console.log("Image vase badesh", uri);
       }
     } catch (e) {
       Alert.alert("Error Uploading Image " + e.message);
@@ -150,14 +148,14 @@ const AddPothole = () => {
         <Picker.Item
           label="Not Dangerous"
           value="Not Dangerous"
-          color="white"
+          color={COLORS.white}
         />
         <Picker.Item
           label="Likely Dangerous"
           value="Likely Dangerous"
-          color="white"
+          color={COLORS.white}
         />
-        <Picker.Item label="Dangerous" value="Dangerous" color="white" />
+        <Picker.Item label="Dangerous" value="Dangerous" color={COLORS.white} />
       </Picker>
       {permission?.status !== ImagePicker.PermissionStatus.GRANTED && (
         <Button
@@ -205,7 +203,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: "blue",
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
