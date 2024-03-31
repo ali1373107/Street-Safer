@@ -35,16 +35,6 @@ const ListOfPotholes = () => {
 
     // Fetch potholes data when the component mounts
     const fetchPotholes = async () => {
-      try {
-        const currentUserId = await getUserId();
-        console.log("User ID:", currentUserId);
-
-        setUserId(currentUserId);
-        const fetchedPotholes = await getPotholesByUserId(currentUserId);
-        setPotholes(fetchedPotholes);
-      } catch (error) {
-        console.error("Error fetching potholes:", error);
-      }
       const userId = await getUserId();
 
       const db = getDatabase();
