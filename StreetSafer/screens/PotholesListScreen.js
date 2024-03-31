@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FlatList, View, Text, StyleSheet } from "react-native";
+import { FlatList, View, Text, StyleSheet, Alert } from "react-native";
 //import { getPotholesByUserId } from "../utils/actions/potholeAction";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Button from "../components/Button";
@@ -12,10 +12,21 @@ import {
   equalTo,
   onValue,
   off,
+  remove,
 } from "firebase/database";
 const ListOfPotholes = () => {
   const [potholes, setPotholes] = useState([]);
-
+  const handleDelete = async (potholeId) => {
+    try {
+      const db = getDatabase();
+      await remove(ref(db, `potholes/${potholeId}`));
+      setPotholes(potholes.filter((pothole) => pothole.id !== potholeId));
+      Alert.alert("Success", "Pothole deleted successfully");
+    } catch (error) {
+      console.error("Error deleting pothole:", error);
+      Alert.alert("Error", "Failed to delete pothole. Please try again.");
+    }
+  };
   useEffect(() => {
     // Function to retrieve the current user's ID
     const getUserId = () => {
@@ -55,6 +66,7 @@ const ListOfPotholes = () => {
           setPotholes([]);
         }
       });
+
       return () => {
         // Unsubscribe from real-time updates when the component unmounts
         off(listener);
@@ -87,13 +99,16 @@ const ListOfPotholes = () => {
           {item.description ? item.description : "No description provided"}
         </Text>
         <View style={styles.container}>
-          <Button style={styles.button} title="Delete" />
+          <Button
+            style={styles.button}
+            title="Delete"
+            onPress={() => handleDelete(item.id)}
+          />
           <Button style={styles.button} title="Edit" />
         </View>
       </View>
     </View>
   );
-
   return (
     <FlatList
       data={potholes}
