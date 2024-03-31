@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  SafeAreaView,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -8,7 +17,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { createPothole } from "../utils/actions/potholeAction";
 import * as ImagePicker from "expo-image-picker";
 import { storeImageToStorage } from "../utils/firebaseHelper";
-
+import Map from "../components/Map";
 // Function to get the userId of the currently logged-in user
 const getUserId = () => {
   return new Promise((resolve, reject) => {
@@ -105,80 +114,100 @@ const AddPothole = () => {
         break;
     }
   };
+  const handleLocationSelect = (lat, lon) => {
+    setLatitude(lat);
+    setLongitude(lon);
+  };
 
   return (
-    <View style={styles.container}>
-      <Input
-        id="streetName"
-        placeholder="Street Name"
-        placeholderTextColor={COLORS.gray}
-        onInputChanged={inputChangedHandler}
-      />
-      <Input
-        id="postcode"
-        style={styles.input}
-        placeholder="Postcode"
-        placeholderTextColor={COLORS.gray}
-        onInputChanged={inputChangedHandler}
-      />
-      <Input
-        id="latitude"
-        placeholder="Latitude"
-        placeholderTextColor={COLORS.gray}
-        onInputChanged={inputChangedHandler}
-      />
-      <Input
-        id="longitude"
-        placeholder="Longitude"
-        placeholderTextColor={COLORS.gray}
-        onInputChanged={inputChangedHandler}
-      />
-      <Input
-        id="description"
-        placeholder="Description"
-        placeholderTextColor={COLORS.gray}
-        onInputChanged={inputChangedHandler}
-      />
-      <Text style={styles.label}>Danger Level:</Text>
-      <Picker
-        selectedValue={dangerLevel}
-        style={styles.picker}
-        onValueChange={(itemValue) => setDangerLevel(itemValue)}
-      >
-        <Picker.Item
-          label="Not Dangerous"
-          value="Not Dangerous"
-          color={COLORS.white}
-        />
-        <Picker.Item
-          label="Likely Dangerous"
-          value="Likely Dangerous"
-          color={COLORS.white}
-        />
-        <Picker.Item label="Dangerous" value="Dangerous" color={COLORS.white} />
-      </Picker>
-      {permission?.status !== ImagePicker.PermissionStatus.GRANTED && (
-        <Button
-          title="Take Picture"
-          onPress={requestPermission}
-          style={{ width: SIZES.width - 32, marginVertical: 8 }}
-        />
-      )}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <View style={{ flex: 2 }}>
+        <View style={{ flex: 0.9 }}>
+          <Map onLocationSelect={handleLocationSelect} />
+        </View>
+        <ScrollView style={{ flex: 2 }}>
+          <View style={styles.container}>
+            <Input
+              id="streetName"
+              placeholder="Street Name"
+              placeholderTextColor={COLORS.gray}
+              onInputChanged={inputChangedHandler}
+            />
+            <Input
+              id="postcode"
+              style={styles.input}
+              placeholder="Postcode"
+              placeholderTextColor={COLORS.gray}
+              onInputChanged={inputChangedHandler}
+            />
+            <Input
+              id="latitude"
+              placeholder="Latitude"
+              placeholderTextColor={COLORS.gray}
+              onInputChanged={inputChangedHandler}
+            />
+            <Input
+              id="longitude"
+              placeholder="Longitude"
+              placeholderTextColor={COLORS.gray}
+              onInputChanged={inputChangedHandler}
+            />
+            <Input
+              id="description"
+              placeholder="Description"
+              placeholderTextColor={COLORS.gray}
+              onInputChanged={inputChangedHandler}
+            />
+            <Text style={styles.label}>Danger Level:</Text>
+            <Picker
+              selectedValue={dangerLevel}
+              style={styles.picker}
+              onValueChange={(itemValue) => setDangerLevel(itemValue)}
+            >
+              <Picker.Item
+                label="Not Dangerous"
+                value="Not Dangerous"
+                color={COLORS.white}
+              />
+              <Picker.Item
+                label="Likely Dangerous"
+                value="Likely Dangerous"
+                color={COLORS.white}
+              />
+              <Picker.Item
+                label="Dangerous"
+                value="Dangerous"
+                color={COLORS.white}
+              />
+            </Picker>
+            {permission?.status !== ImagePicker.PermissionStatus.GRANTED && (
+              <Button
+                title="Take Picture"
+                onPress={requestPermission}
+                style={{ width: SIZES.width - 32, marginVertical: 8 }}
+              />
+            )}
 
-      {permission?.status === ImagePicker.PermissionStatus.GRANTED && (
-        <Button
-          title="Take Picture"
-          onPress={takePhoto}
-          style={{ width: SIZES.width - 32, marginVertical: 8 }}
-        />
-      )}
-      <Button
-        title="SUBMIT"
-        onPress={handleSubmit}
-        isLoading={isLoading}
-        style={{ width: SIZES.width - 32, marginVertical: 8 }}
-      />
-    </View>
+            {permission?.status === ImagePicker.PermissionStatus.GRANTED && (
+              <Button
+                title="Take Picture"
+                onPress={takePhoto}
+                style={{ width: SIZES.width - 32, marginVertical: 8 }}
+              />
+            )}
+            <Button
+              title="SUBMIT"
+              onPress={handleSubmit}
+              isLoading={isLoading}
+              style={{ width: SIZES.width - 32, marginVertical: 8 }}
+            />
+          </View>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -217,6 +246,11 @@ const styles = StyleSheet.create({
     height: 200,
     resizeMode: "cover",
     marginBottom: 10,
+  },
+  container3: {
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: COLORS.background,
   },
 });
 
