@@ -17,6 +17,8 @@ import {
 import { COLORS } from "../constants";
 import ReportOptions from "../components/ReportOptions";
 import PotholeImage from "../components/PotholeImage";
+import * as Location from "expo-location";
+import { requestForegroundPermissionsAsync } from "expo-location";
 function PotholesOnMap() {
   const [potholes, setPotholes] = useState([]);
   const [selectedPothole, setSelectedPothole] = useState(null);
@@ -25,6 +27,9 @@ function PotholesOnMap() {
   const [email, setEmail] = useState("");
   const [receiveUpdates, setReceiveUpdates] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
+  const [permissionGranted, setPermissionGranted] = useState(false);
+  const [lat, setLat] = useState(null);
+  const [lon, setLon] = useState(null);
 
   useEffect(() => {
     const unsubscribe = getPotholes(setPotholes);
@@ -64,6 +69,34 @@ function PotholesOnMap() {
         return COLORS.black;
     }
   };
+  useEffect(() => {
+    const requestLocationPermission = async () => {
+      if (Platform.OS === "android") {
+        const { status } = await requestForegroundPermissionsAsync();
+        if (status === "granted") {
+          setPermissionGranted(true);
+        }
+      } else {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === "granted") {
+          setPermissionGranted(true);
+        }
+      }
+    };
+
+    requestLocationPermission();
+  }, []);
+  useEffect(() => {
+    const fetchCurrentLocation = async () => {
+      const { coords } = await Location.getCurrentPositionAsync({});
+      setLat(coords.latitude);
+      setLon(coords.longitude);
+    };
+
+    if (permissionGranted && !lat && !lon) {
+      fetchCurrentLocation();
+    }
+  }, [permissionGranted, lat, lon]);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -71,30 +104,39 @@ function PotholesOnMap() {
     >
       <View style={{ flex: 1 }}>
         <View style={styles.container}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: 50.9, // Initial map latitude
-              longitude: -1.4, // Initial map longitude
-              latitudeDelta: 0.0922, // Delta for latitude
-              longitudeDelta: 0.0421, // Delta for longitude
-            }}
-          >
-            {potholes.map((pothole, index) => (
-              <Marker
-                key={index}
-                coordinate={{
-                  latitude: pothole.latitude, // Pothole latitude
-                  longitude: pothole.longitude, // Pothole longitude
-                }}
-                title={`Pothole ${index + 1}: ${pothole.dangerLevel}: ${
-                  pothole.description
-                }`}
-                pinColor={getMarkerColor(pothole.dangerLevel)}
-                onPress={() => setSelectedPothole(pothole)}
-              />
-            ))}
-          </MapView>
+          {!permissionGranted && (
+            <View style={styles.permissionContainer}>
+              <Text style={styles.permissionText}>
+                Location Permission not granted or denied
+              </Text>
+            </View>
+          )}
+          {permissionGranted && lat && lon && (
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: lat, // Initial map latitude
+                longitude: lon, // Initial map longitude
+                latitudeDelta: 0.0922, // Delta for latitude
+                longitudeDelta: 0.0421, // Delta for longitude
+              }}
+            >
+              {potholes.map((pothole, index) => (
+                <Marker
+                  key={index}
+                  coordinate={{
+                    latitude: pothole.latitude, // Pothole latitude
+                    longitude: pothole.longitude, // Pothole longitude
+                  }}
+                  title={`Pothole ${index + 1}: ${pothole.dangerLevel}: ${
+                    pothole.description
+                  }`}
+                  pinColor={getMarkerColor(pothole.dangerLevel)}
+                  onPress={() => setSelectedPothole(pothole)}
+                />
+              ))}
+            </MapView>
+          )}
           {selectedPothole && (
             <View style={styles.container2}>
               <View>
@@ -102,7 +144,9 @@ function PotholesOnMap() {
                   <Text style={styles.cancelButton}>X</Text>
                 </TouchableOpacity>
               </View>
-              <Text>Upload an image of the pothole</Text>
+              <Text style={styles.permissionText}>
+                Upload an image of the pothole
+              </Text>
               <PotholeImage selectedPothole={selectedPothole} />
               <View style={styles.header}>
                 <Text style={styles.title}>Report existing Pothole</Text>
@@ -201,5 +245,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 20,
+  },
+  permissionText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  permissionContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

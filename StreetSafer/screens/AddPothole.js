@@ -128,7 +128,7 @@ const AddPothole = () => {
         <View style={{ flex: 0.9 }}>
           <Map onLocationSelect={handleLocationSelect} />
         </View>
-        <ScrollView style={{ flex: 2 }}>
+        <ScrollView style={{ flex: 2 }} showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
             <Input
               id="streetName"
@@ -143,18 +143,7 @@ const AddPothole = () => {
               placeholderTextColor={COLORS.gray}
               onInputChanged={inputChangedHandler}
             />
-            <Input
-              id="latitude"
-              placeholder="Latitude"
-              placeholderTextColor={COLORS.gray}
-              onInputChanged={inputChangedHandler}
-            />
-            <Input
-              id="longitude"
-              placeholder="Longitude"
-              placeholderTextColor={COLORS.gray}
-              onInputChanged={inputChangedHandler}
-            />
+
             <Input
               id="description"
               placeholder="Description"
