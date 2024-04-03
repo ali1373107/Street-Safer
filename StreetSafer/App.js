@@ -14,6 +14,7 @@ import React, { useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { COLORS, images, FONTS, SIZES } from "./constants";
+import LogoutScreen from "./screens/LogoutScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -123,6 +124,18 @@ export default function App() {
               title: "Signup",
 
               drawerLabel: "SIGNUP",
+              drawerIcon: ({ color, size }) => (
+                <Ionicons color={color} size={size} />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="Logout"
+            component={LogoutScreen}
+            options={{
+              title: "Log out",
+
+              drawerLabel: "Logout",
               drawerIcon: ({ color, size }) => (
                 <Ionicons color={color} size={size} />
               ),
