@@ -1,5 +1,9 @@
-import { StyleSheet, Text, View, Image } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { StyleSheet, Text, View, Image, ActivityIndicator } from "react-native";
+import {
+  NavigationContainer,
+  useNavigation,
+  DrawerActions,
+} from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import WelcomeScreen from "./screens/WelcomeScreen";
 import PotholesListScreen from "./screens/PotholesListScreen";
@@ -10,138 +14,121 @@ import { Ionicons } from "@expo/vector-icons";
 import DangerousPothole from "./screens/DangerousPotholes";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { COLORS, images, FONTS, SIZES } from "./constants";
 import LogoutScreen from "./screens/LogoutScreen";
+import { getUserData } from "./utils/actions/userActions";
+import AllPotholesAdminScreen from "./screens/AllPotholesAdminScreen";
+import AllUsersAdminScreen from "./screens/AllUsersAdminScreen";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { set } from "firebase/database";
+import "react-native-gesture-handler";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-const Drawer = createDrawerNavigator();
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Icon from "react-native-vector-icons/Entypo";
+import ListOfPotholes from "./screens/PotholesListScreen";
+
+const TabNav = ({ loggedIn }) => {
+  const Tab = createBottomTabNavigator();
+
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="PotholesListScreen" component={PotholesListScreen} />
+      <Tab.Screen name="AddPothole" component={AddPothole} />
+      <Tab.Screen name="Logout" component={LogoutScreen} />
+    </Tab.Navigator>
+  );
+};
+const StackNav = ({ loggedIn }) => {
+  const Stack = createNativeStackNavigator();
+  const navigation = useNavigation();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: COLORS.background },
+        headerTintColor: COLORS.white,
+        headerTitleStyle: { fontWeight: "bold" },
+        headerLeft: () => {
+          return (
+            <Icon
+              name="menu"
+              onPress={
+                () => navigation.dispatch(DrawerActions.toggleDrawer)
+                //navigation.openDrawer()
+              }
+              size={30}
+              color={COLORS.black}
+              style={{ marginLeft: 10 }}
+            />
+          );
+        },
+      }}
+    >
+      <Stack.Screen name="PotholesOnMap" component={PotholesOnMap} />
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
+      <Stack.Screen name="Signup" component={Signup} />
+      <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <Stack.Screen name="Tabnav" component={TabNav} />
+    </Stack.Navigator>
+  );
+};
+
+const DrawerNav = ({ loggedIn }) => {
+  const Drawer = createDrawerNavigator();
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: COLORS.background },
+        headerTintColor: COLORS.white,
+        drawerActiveTintColor: COLORS.background,
+        drawerActiveBackgroundColor: COLORS.gray,
+        drawerStyle: { backgroundColor: COLORS.primary },
+        headerShown: false,
+      }}
+    >
+      <Drawer.Screen name="Menu" component={StackNav} />
+      <Drawer.Screen name="DangerousPotholes" component={DangerousPothole} />
+      {loggedIn ? (
+        <Drawer.Screen name="Tabs" component={TabNav} />
+      ) : (
+        <Drawer.Screen name="Login" component={Login} />
+      )}
+    </Drawer.Navigator>
+  );
+};
 
 export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  useEffect(() => {
+    const getUserIdFromStorage = async () => {
+      try {
+        const userDataJSON = await AsyncStorage.getItem("userData");
+        if (userDataJSON !== null) {
+          const userData = JSON.parse(userDataJSON);
+          const userid = userData.userId;
+          setLoggedIn(true);
+          return userid;
+        } else {
+          setLoggedIn(false);
+          console.log("User data not found in AsyncStorage");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error getting user data from AsyncStorage:", error);
+        return null;
+      }
+    };
+    getUserIdFromStorage();
+  }, []);
+
   return (
     <Provider store={store}>
       <NavigationContainer>
-        <Drawer.Navigator
-          screenOptions={{
-            headerStyle: { backgroundColor: COLORS.background },
-            headerTintColor: COLORS.white,
-            drawerActiveTintColor: COLORS.background,
-            drawerActiveBackgroundColor: COLORS.gray,
-            drawerStyle: { backgroundColor: COLORS.primary },
-          }}
-        >
-          <Drawer.Screen
-            name="PotholesOnMap"
-            component={PotholesOnMap}
-            options={{
-              //page titles
-              title: "Potholes On Map Screen",
-              drawerLabel: "Potholes On Map Screen",
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="map" color={color} size={size} />
-              ),
-            }}
-          />
-
-          <Drawer.Screen
-            name="Profile"
-            component={ProfileScreen}
-            options={{
-              title: "Profile Screen",
-
-              drawerLabel: "Profile Screen",
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="person" color={color} size={size} />
-              ),
-            }}
-          />
-
-          <Drawer.Screen
-            name="Welcome"
-            component={WelcomeScreen}
-            options={{
-              title: "Welcome Screen",
-
-              drawerLabel: "Welcome Screen",
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="home" color={color} size={size} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="Potholes List"
-            component={PotholesListScreen}
-            options={{
-              drawerLabel: "Potholes List",
-              title: "Potholes List",
-
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="list" color={color} size={size} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="AddPothole"
-            component={AddPothole}
-            options={{
-              title: "Add Pothole Screen",
-
-              drawerLabel: "Add Pothole Screen",
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="add" color={color} size={size} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="DangerousPotholes "
-            component={DangerousPothole}
-            options={{
-              title: "Dangerous Potholes Screen",
-
-              drawerLabel: "Dangerous Potholes Screen ",
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="alert-outline" color={color} size={size} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="Login"
-            component={Login}
-            options={{
-              title: "Login ",
-
-              drawerLabel: "LOGIN",
-              drawerIcon: ({ color, size }) => (
-                <Ionicons color={color} size={size} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="Signup"
-            component={Signup}
-            options={{
-              title: "Signup",
-
-              drawerLabel: "SIGNUP",
-              drawerIcon: ({ color, size }) => (
-                <Ionicons color={color} size={size} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="Logout"
-            component={LogoutScreen}
-            options={{
-              title: "Log out",
-
-              drawerLabel: "Logout",
-              drawerIcon: ({ color, size }) => (
-                <Ionicons color={color} size={size} />
-              ),
-            }}
-          />
-        </Drawer.Navigator>
+        <DrawerNav loggedIn={loggedIn} />
       </NavigationContainer>
     </Provider>
   );
@@ -165,3 +152,4 @@ const styles = StyleSheet.create({
     height: 500,
   },
 });
+///////

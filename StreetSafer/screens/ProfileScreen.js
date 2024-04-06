@@ -1,27 +1,36 @@
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { useEffect } from "react";
+import { StyleSheet, Text, View, Button } from "react-native";
 
-function ProfileScreen() {
-
+function ProfileScreen(props) {
+  console.log(props);
+  useEffect(() => {
+    console.log("Hii");
+  }, []);
   return (
-    <View style={styles.rootContainer}>
-      <Text>
-        This is the <Text style={styles.highlight}>"Profile"</Text> screen!
-      </Text>
-   
+    <View style={styles.viewStyle}>
+      <Text style={styles.textStyle}>This is Profile Screen</Text>
+      <Button
+        title="Login"
+        onPress={() => props.navigation.navigate("Login")}
+      />
     </View>
   );
 }
-
-export default ProfileScreen;
-
 const styles = StyleSheet.create({
-  rootContainer: {
+  viewStyle: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  highlight: {
-    fontWeight: 'bold',
-    color: '#eb1064',
+  textStyle: {
+    fontSize: 28,
+    color: "black",
+  },
+  headingStyle: {
+    fontSize: 30,
+    color: "black",
+    textAlign: "center",
   },
 });
+export default ProfileScreen;

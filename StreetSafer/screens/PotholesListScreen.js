@@ -4,6 +4,9 @@ import { FlatList, View, Text, StyleSheet, Alert } from "react-native";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Button from "../components/Button";
 import { COLORS, images, FONTS, SIZES } from "../constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getUserData } from "../utils/actions/userActions";
+
 import {
   getDatabase,
   ref,
@@ -13,9 +16,14 @@ import {
   onValue,
   off,
   remove,
+  set,
+  get,
 } from "firebase/database";
+import { SafeAreaView } from "react-native-safe-area-context";
 const ListOfPotholes = () => {
   const [potholes, setPotholes] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userId, setUserId] = useState(null);
   const handleDelete = async (potholeId) => {
     try {
       const db = getDatabase();
@@ -28,26 +36,27 @@ const ListOfPotholes = () => {
     }
   };
   useEffect(() => {
-    // Function to retrieve the current user's ID
-    const getUserId = () => {
-      return new Promise((resolve, reject) => {
-        const auth = getAuth();
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            // User is signed in, return the userId
-            resolve(user.uid);
-          } else {
-            // No user is signed in
-            reject("No user signed in");
-          }
-        });
-      });
+    const getUserIdFromStorage = async () => {
+      try {
+        // Retrieve userData from AsyncStorage
+        const userDataJSON = await AsyncStorage.getItem("userData");
+
+        // If userData exists, parse it and extract userId
+        if (userDataJSON !== null) {
+          const userData = JSON.parse(userDataJSON);
+          const userid = userData.userId;
+          setUserId(userid);
+          return userid;
+        } else {
+          console.log("User data not found in AsyncStorage");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error getting user data from AsyncStorage:", error);
+        return null;
+      }
     };
-
-    // Fetch potholes data when the component mounts
     const fetchPotholes = async () => {
-      const userId = await getUserId();
-
       const db = getDatabase();
       const potholesRef = ref(db, "potholes");
       const potholesQuery = query(
@@ -68,13 +77,36 @@ const ListOfPotholes = () => {
       });
 
       return () => {
-        // Unsubscribe from real-time updates when the component unmounts
-        off(listener);
+        listener();
       };
     };
 
-    fetchPotholes();
-  }, []);
+    const getUserStatus = async () => {
+      try {
+        console.log("userId", userId);
+        const status = await getUserData(userId);
+        if (status !== null) {
+          console.log("status", status);
+          setIsAdmin(status.isAdmin);
+          return status;
+        } else {
+          console.log("User status not found");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error getting user status:", error);
+        return null;
+      }
+    };
+    // Fetch potholes data when the component mounts
+
+    if (userId) {
+      fetchPotholes(userId);
+      getUserStatus(userId);
+    } else {
+      getUserIdFromStorage();
+    }
+  }, [userId]);
 
   const renderItem = ({ item }) => (
     <View style={{ backgroundColor: COLORS.primary }}>
@@ -109,12 +141,25 @@ const ListOfPotholes = () => {
       </View>
     </View>
   );
+  const handeleAdminButton = () => {
+    //print is admin
+    console.log("Admin");
+  };
   return (
-    <FlatList
-      data={potholes}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id.toString()}
-    />
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
+      <View>
+        {isAdmin && (
+          <View>
+            <Button title="All Potholes" onPress={handeleAdminButton} />
+          </View>
+        )}
+        <FlatList
+          data={potholes}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 

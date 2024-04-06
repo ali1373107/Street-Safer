@@ -19,6 +19,9 @@ import ReportOptions from "../components/ReportOptions";
 import PotholeImage from "../components/PotholeImage";
 import * as Location from "expo-location";
 import { requestForegroundPermissionsAsync } from "expo-location";
+import AllPotholesAdminScreen from "./AllPotholesAdminScreen";
+import AllUsersAdminScreen from "./AllUsersAdminScreen";
+
 function PotholesOnMap() {
   const [potholes, setPotholes] = useState([]);
   const [selectedPothole, setSelectedPothole] = useState(null);

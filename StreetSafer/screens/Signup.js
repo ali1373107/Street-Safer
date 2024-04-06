@@ -14,9 +14,9 @@ import { validate } from "validate.js";
 const isTestMode = true;
 const initialState = {
   inputValues: {
-    fullName: isTestMode ? "Ali Dashti" : "",
-    email: isTestMode ? "Ali@gmail.com" : "",
-    password: isTestMode ? "*******" : "",
+    fullName: isTestMode ? "" : "",
+    email: isTestMode ? "" : "",
+    password: isTestMode ? "" : "",
   },
   inputValidities: {
     fullName: false,

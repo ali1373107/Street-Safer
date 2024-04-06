@@ -53,6 +53,10 @@ const Login = ({ navigation }) => {
       setError(null);
       Alert.alert("Login Successfully", "Successfully signed in ");
       setIsLoading(false);
+      navigation.navigate("PotholesOnMap");
+      if (typeof fetchUser === "function") {
+        await fetchUser();
+      }
     } catch (error) {
       console.log(error);
       setIsLoading(false);

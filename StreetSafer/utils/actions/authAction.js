@@ -8,7 +8,7 @@ import { child, getDatabase, ref, set } from "firebase/database";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authenticate } from "../../store/authSlice";
 import { getUserData } from "./userActions";
-export const signUp = (fullName, email, password) => {
+export const signUp = (fullName, email, password, isAdmin = false) => {
   return async (dispatch) => {
     const app = getFirebaseApp();
     const auth = getAuth(app);
@@ -16,17 +16,13 @@ export const signUp = (fullName, email, password) => {
       const result = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
+        false
       );
       const { uid, stsTokenManager } = result.user;
       const { accessToken, expirationTime } = stsTokenManager;
       const expiryDate = new Date(expirationTime);
-      const userData = await createUser(
-        fullName,
-        email,
-        uid,
-        (isAdmin = false)
-      );
+      const userData = await createUser(fullName, email, uid, isAdmin);
       dispatch(authenticate({ token: accessToken, userData }));
       saveToDataStorage(accessToken, uid, expiryDate);
     } catch (error) {
@@ -80,13 +76,13 @@ export const signIn = (email, password) => {
   };
 };
 
-const createUser = async (fullName, email, userId) => {
+const createUser = async (fullName, email, userId, isAdmin) => {
   const userData = {
     fullName,
     email,
     userId,
     signUpData: new Date().toISOString(),
-    isAdmin: false,
+    isAdmin,
   };
   const dbRef = ref(getDatabase());
   const childRef = child(dbRef, `users/${userId}`);
@@ -103,4 +99,17 @@ const saveToDataStorage = (token, userId, expiryDate) => {
       expiryDate: expiryDate.toISOString(),
     })
   );
+};
+export const logout = () => {
+  return async (dispatch) => {
+    try {
+      // Clear user data from AsyncStorage
+      await AsyncStorage.removeItem("userData");
+      // Dispatch action to clear authentication state in Redux store
+      dispatch({ type: "LOGOUT" });
+    } catch (error) {
+      console.error("Error logging out:", error);
+      throw error;
+    }
+  };
 };
