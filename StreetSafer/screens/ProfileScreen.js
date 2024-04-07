@@ -10,8 +10,8 @@ function ProfileScreen(props) {
     <View style={styles.viewStyle}>
       <Text style={styles.textStyle}>This is Profile Screen</Text>
       <Button
-        title="Login"
-        onPress={() => props.navigation.navigate("Login")}
+        title="Go to Potholes List Screen"
+        onPress={() => props.navigation.navigate("ListOfPotholes")}
       />
     </View>
   );

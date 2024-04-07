@@ -6,7 +6,6 @@ import {
 } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import WelcomeScreen from "./screens/WelcomeScreen";
-import PotholesListScreen from "./screens/PotholesListScreen";
 import AddPothole from "./screens/AddPothole";
 import ProfileScreen from "./screens/ProfileScreen";
 import PotholesOnMap from "./screens/PotholesOnMap";
@@ -20,8 +19,8 @@ import { store } from "./store/store";
 import { COLORS, images, FONTS, SIZES } from "./constants";
 import LogoutScreen from "./screens/LogoutScreen";
 import { getUserData } from "./utils/actions/userActions";
-import AllPotholesAdminScreen from "./screens/AllPotholesAdminScreen";
-import AllUsersAdminScreen from "./screens/AllUsersAdminScreen";
+import ManageUserScreen from "./screens/ManageUserScreen";
+import ListOfPotholes from "./screens/ListOfPotholes";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { set } from "firebase/database";
@@ -30,16 +29,18 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/Entypo";
-import ListOfPotholes from "./screens/PotholesListScreen";
 
 const TabNav = ({ loggedIn }) => {
   const Tab = createBottomTabNavigator();
 
   return (
     <Tab.Navigator>
-      <Tab.Screen name="PotholesListScreen" component={PotholesListScreen} />
+      <Tab.Screen name="ListOfPotholes" component={ListOfPotholes} />
       <Tab.Screen name="AddPothole" component={AddPothole} />
-      <Tab.Screen name="Logout" component={LogoutScreen} />
+      <Tab.Screen
+        name="Logout"
+        component={loggedIn ? PotholesOnMap : LogoutScreen}
+      />
     </Tab.Navigator>
   );
 };
@@ -49,6 +50,7 @@ const StackNav = ({ loggedIn }) => {
   return (
     <Stack.Navigator
       screenOptions={{
+        headerBackButtonMenuEnabled: true,
         headerStyle: { backgroundColor: COLORS.background },
         headerTintColor: COLORS.white,
         headerTitleStyle: { fontWeight: "bold" },
@@ -72,7 +74,8 @@ const StackNav = ({ loggedIn }) => {
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
-      <Stack.Screen name="Tabnav" component={TabNav} />
+      <Stack.Screen name="ListOfPotholes" component={ListOfPotholes} />
+      <Stack.Screen name="Login" component={Login} />
     </Stack.Navigator>
   );
 };
@@ -92,11 +95,11 @@ const DrawerNav = ({ loggedIn }) => {
     >
       <Drawer.Screen name="Menu" component={StackNav} />
       <Drawer.Screen name="DangerousPotholes" component={DangerousPothole} />
-      {loggedIn ? (
-        <Drawer.Screen name="Tabs" component={TabNav} />
-      ) : (
-        <Drawer.Screen name="Login" component={Login} />
-      )}
+      <Drawer.Screen name="Tabs" component={TabNav} />
+
+      <Drawer.Screen name="Welcome" component={WelcomeScreen} />
+      <Drawer.Screen name="Login" component={Login} />
+      <Drawer.Screen name="ManageUserScreen" component={ManageUserScreen} />
     </Drawer.Navigator>
   );
 };

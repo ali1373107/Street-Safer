@@ -52,11 +52,10 @@ export const signIn = (email, password) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       const { uid, stsTokenManager } = result.user;
-      const { accessToken, expirationTime } = stsTokenManager;
-      const expiryDate = new Date(expirationTime);
+      const { accessToken } = stsTokenManager;
       const userData = await getUserData(uid);
       dispatch(authenticate({ token: accessToken, userData }));
-      saveToDataStorage(accessToken, uid, expiryDate);
+      saveToDataStorage(accessToken, uid);
     } catch (error) {
       console.log("error message in authaction ", error);
 
@@ -90,13 +89,12 @@ const createUser = async (fullName, email, userId, isAdmin) => {
   return userData;
 };
 
-const saveToDataStorage = (token, userId, expiryDate) => {
+const saveToDataStorage = (token, userId) => {
   AsyncStorage.setItem(
     "userData",
     JSON.stringify({
       token,
       userId,
-      expiryDate: expiryDate.toISOString(),
     })
   );
 };

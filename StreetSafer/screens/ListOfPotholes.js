@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { FlatList, View, Text, StyleSheet, Alert } from "react-native";
-//import { getPotholesByUserId } from "../utils/actions/potholeAction";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Button from "../components/Button";
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserData } from "../utils/actions/userActions";
+import { useNavigation } from "@react-navigation/native";
+import Input from "../components/Input";
+
+import {
+  fetchPotholesById,
+  getPotholes,
+  fetchPotholesByEmail,
+} from "../utils/actions/potholeAction";
 
 import {
   getDatabase,
@@ -20,10 +27,11 @@ import {
   get,
 } from "firebase/database";
 import { SafeAreaView } from "react-native-safe-area-context";
-const ListOfPotholes = () => {
+const ListOfPotholes = ({ navigation }) => {
   const [potholes, setPotholes] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [email, setEmail] = useState("");
   const handleDelete = async (potholeId) => {
     try {
       const db = getDatabase();
@@ -33,6 +41,17 @@ const ListOfPotholes = () => {
     } catch (error) {
       console.error("Error deleting pothole:", error);
       Alert.alert("Error", "Failed to delete pothole. Please try again.");
+    }
+  };
+  const handleSearchByEmail = async () => {
+    if (email.trim() === "" || email.trim().toLowerCase() === "all") {
+      // If email input is empty, display all potholes
+      getPotholes(setPotholes);
+    } else {
+      const potholes = await fetchPotholesByEmail(
+        email.trim().toLowerCase(),
+        setPotholes
+      );
     }
   };
   useEffect(() => {
@@ -46,7 +65,14 @@ const ListOfPotholes = () => {
           const userData = JSON.parse(userDataJSON);
           const userid = userData.userId;
           setUserId(userid);
-          return userid;
+          const user = await getUserData(userid);
+          setIsAdmin(user.isAdmin);
+          if (user.isAdmin) {
+            getPotholes(setPotholes);
+            setEmail("");
+          } else {
+            fetchPotholesById(userid, setPotholes);
+          }
         } else {
           console.log("User data not found in AsyncStorage");
           return null;
@@ -56,61 +82,18 @@ const ListOfPotholes = () => {
         return null;
       }
     };
-    const fetchPotholes = async () => {
-      const db = getDatabase();
-      const potholesRef = ref(db, "potholes");
-      const potholesQuery = query(
-        potholesRef,
-        orderByChild("userId"),
-        equalTo(userId)
-      );
-      const listener = onValue(potholesQuery, (snapshot) => {
-        const potholesData = snapshot.val();
-        if (potholesData) {
-          const potholesArray = Object.entries(potholesData).map(
-            ([key, value]) => ({ id: key, ...value })
-          );
-          setPotholes(potholesArray);
-        } else {
-          setPotholes([]);
-        }
-      });
 
-      return () => {
-        listener();
-      };
-    };
-
-    const getUserStatus = async () => {
-      try {
-        console.log("userId", userId);
-        const status = await getUserData(userId);
-        if (status !== null) {
-          console.log("status", status);
-          setIsAdmin(status.isAdmin);
-          return status;
-        } else {
-          console.log("User status not found");
-          return null;
-        }
-      } catch (error) {
-        console.error("Error getting user status:", error);
-        return null;
-      }
-    };
-    // Fetch potholes data when the component mounts
-
-    if (userId) {
-      fetchPotholes(userId);
-      getUserStatus(userId);
-    } else {
-      getUserIdFromStorage();
-    }
-  }, [userId]);
+    getUserIdFromStorage();
+  }, []);
 
   const renderItem = ({ item }) => (
     <View style={{ backgroundColor: COLORS.primary }}>
-      <View style={styles.item}>
+      <View
+        style={[
+          styles.item,
+          { borderColor: item.userId === userId ? "lightgreen" : COLORS.white },
+        ]}
+      >
         <Text style={{ ...FONTS.h2, color: COLORS.white }}>
           Street Name: {item.streetName}
         </Text>
@@ -141,18 +124,25 @@ const ListOfPotholes = () => {
       </View>
     </View>
   );
-  const handeleAdminButton = () => {
-    //print is admin
-    console.log("Admin");
-  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
+      {isAdmin && (
+        <View style={styles.input}>
+          <Input
+            id="email"
+            onInputChanged={(id, text) => {
+              setEmail(text);
+              console.log(`Input ${id} changed: ${text}`);
+            }}
+            value={email}
+            placeholder="Search by email"
+            color={COLORS.primary}
+          />
+          <Button title="Search" onPress={handleSearchByEmail} />
+        </View>
+      )}
       <View>
-        {isAdmin && (
-          <View>
-            <Button title="All Potholes" onPress={handeleAdminButton} />
-          </View>
-        )}
         <FlatList
           data={potholes}
           renderItem={renderItem}
@@ -182,6 +172,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     borderRadius: 5,
     marginHorizontal: 30,
+  },
+  input: {
+    backgroundColor: COLORS.white,
+    padding: 10,
+    margin: 10,
+    borderRadius: 5,
+    marginTop: -70,
   },
 });
 

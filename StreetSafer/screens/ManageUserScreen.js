@@ -7,21 +7,35 @@ import {
   Alert,
   TextInput,
 } from "react-native";
-import { getAllUsers, updateUser } from "../utils/actions/userActions";
+import {
+  getAllUsers,
+  updateUser,
+  getUserById,
+  getUserByEmail,
+} from "../utils/actions/userActions";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Button from "../components/Button";
+import Input from "../components/Input";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import { getDatabase, ref, remove } from "firebase/database";
-const ListOfUsers = () => {
+import { getUserData } from "../utils/actions/userActions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const ManageUserScreen = () => {
   const [users, setUsers] = useState([]);
   const [unsubscribe, setUnsubscribe] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({
     id: "",
     fullName: "",
-    email: "",
+    emails: "",
     isAdmin: false,
   });
+  const [userId, setUserId] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [email, setEmail] = useState("");
 
   const handleDelete = async (userId) => {
     try {
@@ -45,15 +59,49 @@ const ListOfUsers = () => {
       Alert.alert("Error", "Failed to update user. Please try again.");
     }
   };
+  const handleSearchByEmail = async () => {
+    if (email.trim() === "" || email.trim().toLowerCase() === "all") {
+      // If email input is empty, display all potholes
+      getAllUsers(setUsers);
+    } else {
+      const users = await getUserByEmail(email.trim().toLowerCase(), setUsers);
+    }
+  };
   useEffect(() => {
-    const unsubscribeFunc = getAllUsers(setUsers);
-    setUnsubscribe(() => unsubscribeFunc);
+    const getUserIdFromStorage = async () => {
+      try {
+        // Retrieve userData from AsyncStorage
+        const userDataJSON = await AsyncStorage.getItem("userData");
 
-    return () => {
-      if (typeof unsubscribe === "function") {
-        unsubscribe();
+        // If userData exists, parse it and extract userId
+        if (userDataJSON !== null) {
+          const userData = JSON.parse(userDataJSON);
+          const userid = userData.userId;
+          setUserId(userid);
+          const user = await getUserData(userid);
+          console.log("user", user);
+          setIsAdmin(user.isAdmin);
+          if (user.isAdmin) {
+            getAllUsers(setUsers);
+            setEmail("");
+          } else {
+            const user = await getUserById(userid);
+            console.log("user1", user);
+            setUsers([user]);
+          }
+        } else {
+          console.log("User data not found in AsyncStorage");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error getting user data from AsyncStorage:", error);
+        return null;
       }
     };
+
+    // Fetch potholes data when the component mounts
+
+    getUserIdFromStorage();
   }, []);
   const formatDate = (dateString) => {
     const dateObject = new Date(dateString);
@@ -70,7 +118,12 @@ const ListOfUsers = () => {
 
   const renderItem = ({ item }) => (
     <View style={{ backgroundColor: COLORS.primary }}>
-      <View style={styles.item}>
+      <View
+        style={[
+          styles.item,
+          { borderColor: item.userId === userId ? "lightgreen" : COLORS.white },
+        ]}
+      >
         <Text style={{ ...FONTS.h2, color: COLORS.white }}>
           Name: {item.fullName}
         </Text>
@@ -125,11 +178,32 @@ const ListOfUsers = () => {
     </View>
   );
   return (
-    <FlatList
-      data={users}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id.toString()}
-    />
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
+      {isAdmin && (
+        <View style={styles.input}>
+          <Input
+            id="email"
+            onInputChanged={(id, text) => {
+              setEmail(text);
+              console.log(`Input ${id} changed: ${text}`);
+            }}
+            value={email}
+            placeholder="Search by email"
+            color={COLORS.primary}
+          />
+          <Button title="Search" onPress={handleSearchByEmail} />
+        </View>
+      )}
+      <View>
+        <FlatList
+          data={users}
+          renderItem={renderItem}
+          keyExtractor={(item, index) =>
+            item.id ? item.id.toString() : index.toString()
+          }
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -153,7 +227,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginHorizontal: 30,
   },
+  input: {
+    backgroundColor: COLORS.white,
+    padding: 10,
+    margin: 10,
+    borderRadius: 5,
+    marginTop: -20,
+  },
 });
 
-export default ListOfUsers;
+export default ManageUserScreen;
 //frameprocessor

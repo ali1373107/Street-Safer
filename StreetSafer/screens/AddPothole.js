@@ -19,13 +19,13 @@ import * as ImagePicker from "expo-image-picker";
 import { storeImageToStorage } from "../utils/firebaseHelper";
 import Map from "../components/Map";
 // Function to get the userId of the currently logged-in user
-const getUserId = () => {
+const getUserIdAndEmail = () => {
   return new Promise((resolve, reject) => {
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in, return the userId
-        resolve(user.uid);
+        resolve({ userId: user.uid, email: user.email });
       } else {
         // No user is signed in
         reject("No user signed in");
@@ -43,6 +43,7 @@ const AddPothole = () => {
   const [dangerLevel, setDangerLevel] = useState("Not Dangerous");
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
   const [image, setImage] = useState("");
+  const [email, setEmail] = useState("");
   const takePhoto = async () => {
     try {
       const cameraResp = await ImagePicker.launchCameraAsync({
@@ -65,7 +66,8 @@ const AddPothole = () => {
     setIsLoading(true);
     try {
       const name = image.split("/").pop();
-      const userId = await getUserId();
+      const { userId, email } = await getUserIdAndEmail(); // Retrieve userId and email
+
       await createPothole(
         streetName,
         postcode,
@@ -74,7 +76,8 @@ const AddPothole = () => {
         dangerLevel,
         description,
         name,
-        userId
+        userId,
+        email
       );
 
       await storeImageToStorage(image, name);

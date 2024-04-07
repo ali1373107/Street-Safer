@@ -22,7 +22,8 @@ export const createPothole = async (
   dangerLevel,
   description,
   imageUrl,
-  userId
+  userId,
+  email
 ) => {
   const pothole = {
     streetName,
@@ -33,6 +34,7 @@ export const createPothole = async (
     description,
     imageUrl,
     userId,
+    email,
   };
   const app = getFirebaseApp();
   const db = getDatabase(app);
@@ -140,6 +142,57 @@ export const reportExistingPothole = async (
     console.error("Error creating pothole:", error);
     throw error; // Re-throw the error to be caught by the caller
   }
+};
+export const fetchPotholesById = (userId, setPotholes) => {
+  const db = getDatabase();
+  const potholesRef = ref(db, "potholes");
+  const potholesQuery = query(
+    potholesRef,
+    orderByChild("userId"),
+    equalTo(userId)
+  );
+  const listener = onValue(potholesQuery, (snapshot) => {
+    const potholesData = snapshot.val();
+    if (potholesData) {
+      const potholesArray = Object.entries(potholesData).map(
+        ([key, value]) => ({ id: key, ...value })
+      );
+      setPotholes(potholesArray);
+    } else {
+      setPotholes([]);
+    }
+  });
+
+  return () => {
+    listener();
+  };
+};
+export const fetchPotholesByEmail = (email, setPotholes) => {
+  const db = getDatabase();
+  const potholesRef = ref(db, "potholes");
+  const potholesQuery = query(
+    potholesRef,
+    orderByChild("email"),
+    equalTo(email.toLowerCase())
+  );
+
+  // Attach an event listener to retrieve data
+  const listener = onValue(potholesQuery, (snapshot) => {
+    const potholesData = snapshot.val();
+    if (potholesData) {
+      const potholesArray = Object.entries(potholesData).map(
+        ([key, value]) => ({ id: key, ...value })
+      );
+      setPotholes(potholesArray);
+    } else {
+      setPotholes([]);
+    }
+  });
+
+  // Return a function to detach the event listener
+  return () => {
+    listener();
+  };
 };
 
 ///https://reactnative.dev/docs/pressable

@@ -14,7 +14,7 @@ import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch } from "react-redux";
-import { logout } from "../utils/actions/authAction";
+import { logout } from "../store/authSlice";
 
 const LogoutScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
