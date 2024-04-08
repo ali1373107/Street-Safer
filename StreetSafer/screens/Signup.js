@@ -83,6 +83,7 @@ const Signup = ({ navigation }) => {
             onInputChanged={inputChangedHandeler}
             errorText={formState.inputValidities["fullName"]}
             placeHolderTextColor={COLORS.gray}
+            color={COLORS.white}
           />
           <Input
             id="email"
@@ -90,6 +91,7 @@ const Signup = ({ navigation }) => {
             placeHolderTextColor={COLORS.gray}
             errorText={formState.inputValidities["email"]}
             onInputChanged={inputChangedHandeler}
+            color={COLORS.white}
           />
           <Input
             id="password"
@@ -97,6 +99,7 @@ const Signup = ({ navigation }) => {
             placeHolderTextColor={COLORS.gray}
             errorText={formState.inputValidities["password"]}
             onInputChanged={inputChangedHandeler}
+            color={COLORS.white}
           />
           <Button
             title="SIGNUP"

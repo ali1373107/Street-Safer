@@ -22,6 +22,8 @@ export const createPothole = async (
   dangerLevel,
   description,
   imageUrl,
+  status,
+  update,
   userId,
   email
 ) => {
@@ -33,6 +35,8 @@ export const createPothole = async (
     dangerLevel,
     description,
     imageUrl,
+    status,
+    update,
     userId,
     email,
   };

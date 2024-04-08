@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { FlatList, View, Text, StyleSheet, Alert } from "react-native";
+import {
+  FlatList,
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  TextInput,
+  Modal,
+} from "react-native";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Button from "../components/Button";
 import { COLORS, images, FONTS, SIZES } from "../constants";
@@ -7,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserData } from "../utils/actions/userActions";
 import { useNavigation } from "@react-navigation/native";
 import Input from "../components/Input";
+import EditPotholeForm from "../components/EditPotholeForm";
 
 import {
   fetchPotholesById,
@@ -32,6 +41,10 @@ const ListOfPotholes = ({ navigation }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userId, setUserId] = useState(null);
   const [email, setEmail] = useState("");
+  const [editingPotholeId, setEditingPotholeId] = useState(null);
+  const [isFormOpen, setIsFormOpen] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   const handleDelete = async (potholeId) => {
     try {
       const db = getDatabase();
@@ -47,11 +60,20 @@ const ListOfPotholes = ({ navigation }) => {
     if (email.trim() === "" || email.trim().toLowerCase() === "all") {
       // If email input is empty, display all potholes
       getPotholes(setPotholes);
+      Alert.alert("All potholes displayed");
     } else {
-      const potholes = await fetchPotholesByEmail(
-        email.trim().toLowerCase(),
-        setPotholes
+      const lowercaseEmail = email.trim().toLowerCase();
+
+      const pothole = potholes.find(
+        (pothole) => pothole.email.toLowerCase() === lowercaseEmail
       );
+      if (pothole) {
+        setPotholes([pothole]);
+        setEmail("");
+        Alert.alert("Pothole found");
+      } else {
+        Alert.alert("No Pothole found with the given email");
+      }
     }
   };
   useEffect(() => {
@@ -86,6 +108,29 @@ const ListOfPotholes = ({ navigation }) => {
     getUserIdFromStorage();
   }, []);
 
+  const handleSaveStatus = async (potholeId, status, update) => {
+    try {
+      const db = getDatabase();
+      await Promise.all([
+        set(ref(db, `potholes/${potholeId}/status`), status),
+        set(ref(db, `potholes/${potholeId}/update`), update),
+      ]);
+      Alert.alert("Success", "Pothole status and update updated successfully");
+      setEditingPotholeId(null);
+    } catch (error) {
+      console.error("Error updating pothole status and update:", error);
+      Alert.alert(
+        "Error",
+        "Failed to update pothole status and update. Please try again."
+      );
+    }
+  };
+  const onCancel = () => {
+    // Set the form state to false to close the form
+    setIsFormOpen(false);
+    console.log("Cancel button pressed");
+  };
+
   const renderItem = ({ item }) => (
     <View style={{ backgroundColor: COLORS.primary }}>
       <View
@@ -110,6 +155,9 @@ const ListOfPotholes = ({ navigation }) => {
           {item.dangerLevel}
         </Text>
         <Text style={{ ...FONTS.h2, color: COLORS.white }}>
+          Status: {item.status}
+        </Text>
+        <Text style={{ ...FONTS.h2, color: COLORS.white }}>
           Description:{" "}
           {item.description ? item.description : "No description provided"}
         </Text>
@@ -119,7 +167,30 @@ const ListOfPotholes = ({ navigation }) => {
             title="Delete"
             onPress={() => handleDelete(item.id)}
           />
-          <Button style={styles.button} title="Edit" />
+          {isAdmin && (
+            <>
+              {editingPotholeId === item.id && isFormOpen ? (
+                <Modal visible={isModalVisible} animationType="slide">
+                  <EditPotholeForm
+                    onCancel={onCancel}
+                    onSave={(status, update) =>
+                      handleSaveStatus(item.id, status, update)
+                    }
+                  />
+                </Modal>
+              ) : (
+                <Button
+                  style={styles.button}
+                  title="Edit"
+                  onPress={() => {
+                    setEditingPotholeId(item.id);
+                    setIsFormOpen(true);
+                    setIsModalVisible(true);
+                  }}
+                />
+              )}
+            </>
+          )}
         </View>
       </View>
     </View>
@@ -135,9 +206,9 @@ const ListOfPotholes = ({ navigation }) => {
               setEmail(text);
               console.log(`Input ${id} changed: ${text}`);
             }}
+            color={"grey"}
             value={email}
             placeholder="Search by email"
-            color={COLORS.primary}
           />
           <Button title="Search" onPress={handleSearchByEmail} />
         </View>

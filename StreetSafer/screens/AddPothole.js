@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
+  TextInput,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Input from "../components/Input";
@@ -18,21 +19,12 @@ import { createPothole } from "../utils/actions/potholeAction";
 import * as ImagePicker from "expo-image-picker";
 import { storeImageToStorage } from "../utils/firebaseHelper";
 import Map from "../components/Map";
+import axios from "axios";
+import { set, update } from "firebase/database";
+import { getUserData } from "../utils/actions/userActions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 // Function to get the userId of the currently logged-in user
-const getUserIdAndEmail = () => {
-  return new Promise((resolve, reject) => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, return the userId
-        resolve({ userId: user.uid, email: user.email });
-      } else {
-        // No user is signed in
-        reject("No user signed in");
-      }
-    });
-  });
-};
 const AddPothole = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [streetName, setStreetName] = useState("");
@@ -44,6 +36,8 @@ const AddPothole = () => {
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
   const [image, setImage] = useState("");
   const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState("");
+
   const takePhoto = async () => {
     try {
       const cameraResp = await ImagePicker.launchCameraAsync({
@@ -56,9 +50,24 @@ const AddPothole = () => {
         const { uri } = cameraResp.assets[0];
         console.log("Image URI", uri);
         setImage(uri);
+        Alert.alert("Image taken successfully");
       }
     } catch (e) {
       Alert.alert("Error Uploading Image " + e.message);
+    }
+  };
+  const fetchAddress = async (latitude, longitude) => {
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+      );
+      const { address } = response.data;
+      const { postcode, road } = address;
+      setPostcode(postcode || "Not Available");
+      setStreetName(road || "Not Available");
+      Alert.alert("Address fetched successfully");
+    } catch (error) {
+      console.error("Error fetching address:", error);
     }
   };
 
@@ -66,7 +75,8 @@ const AddPothole = () => {
     setIsLoading(true);
     try {
       const name = image.split("/").pop();
-      const { userId, email } = await getUserIdAndEmail(); // Retrieve userId and email
+      const status = "Reported";
+      const update = "Pending Review";
 
       await createPothole(
         streetName,
@@ -76,11 +86,14 @@ const AddPothole = () => {
         dangerLevel,
         description,
         name,
+        status,
+        update,
         userId,
         email
       );
-
       await storeImageToStorage(image, name);
+      Alert.alert("Pothole created successfully");
+
       console.log("Pothole created successfully");
       // Reset form fields after successful submission
       setStreetName("");
@@ -98,18 +111,6 @@ const AddPothole = () => {
   };
   const inputChangedHandler = (inputId, text) => {
     switch (inputId) {
-      case "streetName":
-        setStreetName(text);
-        break;
-      case "postcode":
-        setPostcode(text);
-        break;
-      case "latitude":
-        setLatitude(text);
-        break;
-      case "longitude":
-        setLongitude(text);
-        break;
       case "description":
         setDescription(text);
         break;
@@ -120,7 +121,33 @@ const AddPothole = () => {
   const handleLocationSelect = (lat, lon) => {
     setLatitude(lat);
     setLongitude(lon);
+    fetchAddress(lat, lon);
   };
+  useEffect(() => {
+    const getUserIdFromStorage = async () => {
+      try {
+        // Retrieve userData from AsyncStorage
+        const userDataJSON = await AsyncStorage.getItem("userData");
+
+        // If userData exists, parse it and extract userId
+        if (userDataJSON !== null) {
+          const userData = JSON.parse(userDataJSON);
+          const userid = userData.userId;
+          setUserId(userid);
+          const user = await getUserData(userid);
+          setEmail(user.email);
+        } else {
+          console.log("User data not found in AsyncStorage");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error getting user data from AsyncStorage:", error);
+        return null;
+      }
+    };
+
+    getUserIdFromStorage();
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -136,15 +163,19 @@ const AddPothole = () => {
             <Input
               id="streetName"
               placeholder="Street Name"
+              value={streetName}
               placeholderTextColor={COLORS.gray}
               onInputChanged={inputChangedHandler}
+              color={COLORS.white}
             />
             <Input
               id="postcode"
               style={styles.input}
+              value={postcode}
               placeholder="Postcode"
               placeholderTextColor={COLORS.gray}
               onInputChanged={inputChangedHandler}
+              color={COLORS.white}
             />
 
             <Input
@@ -152,6 +183,7 @@ const AddPothole = () => {
               placeholder="Description"
               placeholderTextColor={COLORS.gray}
               onInputChanged={inputChangedHandler}
+              color={COLORS.white}
             />
             <Text style={styles.label}>Danger Level:</Text>
             <Picker

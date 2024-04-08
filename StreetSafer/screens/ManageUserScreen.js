@@ -59,12 +59,23 @@ const ManageUserScreen = () => {
       Alert.alert("Error", "Failed to update user. Please try again.");
     }
   };
-  const handleSearchByEmail = async () => {
+  const handleSearchByEmail = () => {
     if (email.trim() === "" || email.trim().toLowerCase() === "all") {
-      // If email input is empty, display all potholes
+      // If email input is empty, display all users
       getAllUsers(setUsers);
+      Alert.alert("All Users Retrieved ");
     } else {
-      const users = await getUserByEmail(email.trim().toLowerCase(), setUsers);
+      const lowercaseEmail = email.trim().toLowerCase();
+      const user = users.find(
+        (user) => user.email.toLowerCase() === lowercaseEmail
+      );
+      Alert.alert("User Retrieved");
+
+      if (user) {
+        setUsers([user]); // Update the users state with the found user
+      } else {
+        Alert.alert("No user found with the given email");
+      }
     }
   };
   useEffect(() => {
@@ -78,16 +89,18 @@ const ManageUserScreen = () => {
           const userData = JSON.parse(userDataJSON);
           const userid = userData.userId;
           setUserId(userid);
+          console.log("useridsy", userid);
           const user = await getUserData(userid);
           console.log("user", user);
           setIsAdmin(user.isAdmin);
           if (user.isAdmin) {
             getAllUsers(setUsers);
+            Alert.alert("Success");
+
             setEmail("");
           } else {
-            const user = await getUserById(userid);
-            console.log("user1", user);
-            setUsers([user]);
+            await getUserById(userid, setUsers);
+            Alert.alert("Success");
           }
         } else {
           console.log("User data not found in AsyncStorage");
@@ -187,9 +200,9 @@ const ManageUserScreen = () => {
               setEmail(text);
               console.log(`Input ${id} changed: ${text}`);
             }}
+            color={"grey"}
             value={email}
             placeholder="Search by email"
-            color={COLORS.primary}
           />
           <Button title="Search" onPress={handleSearchByEmail} />
         </View>

@@ -37,10 +37,8 @@ const TabNav = ({ loggedIn }) => {
     <Tab.Navigator>
       <Tab.Screen name="ListOfPotholes" component={ListOfPotholes} />
       <Tab.Screen name="AddPothole" component={AddPothole} />
-      <Tab.Screen
-        name="Logout"
-        component={loggedIn ? PotholesOnMap : LogoutScreen}
-      />
+
+      <Tab.Screen name="ManageUserScreen" component={ManageUserScreen} />
     </Tab.Navigator>
   );
 };
@@ -75,7 +73,7 @@ const StackNav = ({ loggedIn }) => {
       <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       <Stack.Screen name="ListOfPotholes" component={ListOfPotholes} />
-      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="LogoutScreen" component={LogoutScreen} />
     </Stack.Navigator>
   );
 };
@@ -97,9 +95,8 @@ const DrawerNav = ({ loggedIn }) => {
       <Drawer.Screen name="DangerousPotholes" component={DangerousPothole} />
       <Drawer.Screen name="Tabs" component={TabNav} />
 
-      <Drawer.Screen name="Welcome" component={WelcomeScreen} />
+      <Drawer.Screen name="about" component={WelcomeScreen} />
       <Drawer.Screen name="Login" component={Login} />
-      <Drawer.Screen name="ManageUserScreen" component={ManageUserScreen} />
     </Drawer.Navigator>
   );
 };

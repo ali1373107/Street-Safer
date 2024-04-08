@@ -85,6 +85,7 @@ const Login = ({ navigation }) => {
         <View style={{ marginVertical: 22 }}>
           <Input
             id="email"
+            color={COLORS.white}
             placeholder="Email Address"
             placeholderTextColor={COLORS.gray}
             errorText={formState.inputValidities["email"]}
@@ -92,6 +93,7 @@ const Login = ({ navigation }) => {
           />
           <Input
             id="password"
+            color={COLORS.white}
             placeholder="Password"
             placeholderTextColor={COLORS.gray}
             errorText={formState.inputValidities["password"]}

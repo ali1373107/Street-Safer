@@ -5,9 +5,11 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { getDangerousPotholes } from "../utils/actions/potholeAction";
 import { COLORS, FONTS } from "../constants";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ListOfDangerousPotholes = () => {
   const [potholes, setPotholes] = useState([]);
@@ -57,11 +59,13 @@ const ListOfDangerousPotholes = () => {
   }
 
   return (
-    <FlatList
-      data={potholes}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id.toString()}
-    />
+    <SafeAreaView>
+      <FlatList
+        data={potholes}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+      />
+    </SafeAreaView>
   );
 };
 

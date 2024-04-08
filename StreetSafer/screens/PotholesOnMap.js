@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  Alert,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import Button from "../components/Button";
@@ -32,6 +34,7 @@ function PotholesOnMap() {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [lat, setLat] = useState(null);
   const [lon, setLon] = useState(null);
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     const unsubscribe = getPotholes(setPotholes);
@@ -48,6 +51,7 @@ function PotholesOnMap() {
         email
       );
       console.log(`Report submitted: ${report}`);
+      Alert.alert("Report submitted");
       setSelectedPothole(null);
       setEmail("");
       setReportText("");
@@ -93,12 +97,15 @@ function PotholesOnMap() {
       const { coords } = await Location.getCurrentPositionAsync({});
       setLat(coords.latitude);
       setLon(coords.longitude);
+      setStatus(potholes.status);
+      Alert.alert("current location fetched successfully");
     };
 
     if (permissionGranted && !lat && !lon) {
       fetchCurrentLocation();
     }
   }, [permissionGranted, lat, lon]);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -140,56 +147,67 @@ function PotholesOnMap() {
             </MapView>
           )}
           {selectedPothole && (
-            <View style={styles.container2}>
-              <View>
-                <TouchableOpacity onPress={() => setSelectedPothole(null)}>
-                  <Text style={styles.cancelButton}>X</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.permissionText}>
-                Upload an image of the pothole
-              </Text>
-              <PotholeImage selectedPothole={selectedPothole} />
-              <View style={styles.header}>
-                <Text style={styles.title}>Report existing Pothole</Text>
-              </View>
-              <ReportOptions handleOptionSelection={handleOptionSelection} />
-              <View>
-                <Text>Would you like to get updates for this pothole?</Text>
-                <View style={styles.container1}>
-                  <Button
-                    title="Yes"
-                    style={styles.button}
-                    onPress={() => setReceiveUpdates(true)}
+            <ScrollView>
+              <View style={styles.container2}>
+                <View>
+                  <TouchableOpacity onPress={() => setSelectedPothole(null)}>
+                    <Text style={styles.cancelButton}>X</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.permissionText}>Image of the pothole</Text>
+                <PotholeImage selectedPothole={selectedPothole} />
+                <View style={styles.container2}>
+                  <Text style={styles.title}>Pothole Update:</Text>
+                  <Text style={styles.text}>{selectedPothole.update}</Text>
+                </View>
+
+                <View style={styles.container2}>
+                  <View style={styles.header}>
+                    <Text style={styles.title}>Report existing Pothole</Text>
+                  </View>
+                  <ReportOptions
+                    handleOptionSelection={handleOptionSelection}
+                  />
+                  <View>
+                    <Text style={styles.title}>
+                      Would you like to get updates for this pothole?
+                    </Text>
+                    <View style={styles.container1}>
+                      <Button
+                        title="Yes"
+                        style={styles.button}
+                        onPress={() => setReceiveUpdates(true)}
+                      />
+                      <Button
+                        title="No"
+                        style={styles.button}
+                        onPress={() => setReceiveUpdates(false)}
+                      />
+                    </View>
+                  </View>
+                  {receiveUpdates && (
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter your email to get updated on the report"
+                      value={email}
+                      onChangeText={setEmail}
+                    />
+                  )}
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your report here"
+                    placeholderTextColor={COLORS.white}
+                    value={reportText}
+                    onChangeText={setReportText}
                   />
                   <Button
-                    title="No"
-                    style={styles.button}
-                    onPress={() => setReceiveUpdates(false)}
+                    title="Submit"
+                    onPress={handleReportSubmit}
+                    color={COLORS.w}
                   />
                 </View>
               </View>
-              {receiveUpdates && (
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your email to get updated on the report"
-                  value={email}
-                  onChangeText={setEmail}
-                />
-              )}
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your report here"
-                value={reportText}
-                onChangeText={setReportText}
-              />
-
-              <Button
-                title="Submit"
-                onPress={handleReportSubmit}
-                color={COLORS.w}
-              />
-            </View>
+            </ScrollView>
           )}
         </View>
       </View>
@@ -211,7 +229,8 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     borderColor: "gray",
-    borderWidth: 1,
+    borderWidth: 2,
+    borderRadius: 5,
   },
   header: {
     flexDirection: "row",
@@ -222,6 +241,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: "normal",
   },
   cancelButton: {
     fontSize: 20,
