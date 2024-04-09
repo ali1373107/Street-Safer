@@ -12,40 +12,21 @@ import {
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, images, FONTS, SIZES } from "../constants";
-import { getUserData } from "../utils/actions/userActions";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { useUser } from "./UserContext";
 const ProfileScreen = ({ navigation }) => {
-  const [user, setUser] = useState([]);
+  //const [user, setUser] = useState([]);
+  const { user } = useUser();
 
-  useEffect(() => {
-    const getUserIdFromStorage = async () => {
-      try {
-        // Retrieve userData from AsyncStorage
-        const userDataJSON = await AsyncStorage.getItem("userData");
-
-        // If userData exists, parse it and extract userId
-        if (userDataJSON !== null) {
-          const userData = JSON.parse(userDataJSON);
-          const userid = userData.userId;
-          console.log("useridsy", userid);
-          const user = await getUserData(userid);
-          console.log("user", user);
-          setUser(user);
-        } else {
-          console.log("User data not found in AsyncStorage");
-          return null;
-        }
-      } catch (error) {
-        console.error("Error getting user data from AsyncStorage:", error);
-        return null;
-      }
-    };
-
-    // Fetch potholes data when the component mounts
-
-    getUserIdFromStorage();
-  }, []);
+  if (!user) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text style={styles.text}>No user data available</Text>
+      </SafeAreaView>
+    );
+  }
   const formatDate = (dateString) => {
     const dateObject = new Date(dateString);
 

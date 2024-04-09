@@ -23,7 +23,7 @@ import * as Location from "expo-location";
 import { requestForegroundPermissionsAsync } from "expo-location";
 import AllUsersAdminScreen from "./ManageUserScreen";
 
-function PotholesOnMap() {
+function PotholesOnMap({ navigation }) {
   const [potholes, setPotholes] = useState([]);
   const [selectedPothole, setSelectedPothole] = useState(null);
   const [reportText, setReportText] = useState("");

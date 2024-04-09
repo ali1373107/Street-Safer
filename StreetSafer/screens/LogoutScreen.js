@@ -15,6 +15,7 @@ import { COLORS, images, FONTS, SIZES } from "../constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/authSlice";
+import { useUser } from "./UserContext";
 
 const LogoutScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,10 +23,12 @@ const LogoutScreen = ({ navigation }) => {
 
   const handleLogout = async () => {
     setIsLoading(true);
+
     const auth = getAuth();
     try {
       dispatch(logout());
-
+      const { logOut } = useUser();
+      logOut();
       // Sign out from Firebase
       await signOut(auth);
 

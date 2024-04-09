@@ -16,6 +16,7 @@ import { getUserData } from "../utils/actions/userActions";
 import { useNavigation } from "@react-navigation/native";
 import Input from "../components/Input";
 import EditPotholeForm from "../components/EditPotholeForm";
+import { useUser } from "./UserContext";
 
 import {
   fetchPotholesById,
@@ -38,13 +39,21 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 const ListOfPotholes = ({ navigation }) => {
   const [potholes, setPotholes] = useState([]);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [userId, setUserId] = useState(null);
-  const [email, setEmail] = useState("");
+  const [email1, setEmail] = useState("");
   const [editingPotholeId, setEditingPotholeId] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const { user } = useUser();
 
+  if (!user) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text style={styles.text}>No user data available</Text>
+      </SafeAreaView>
+    );
+  }
   const handleDelete = async (potholeId) => {
     try {
       const db = getDatabase();
@@ -57,47 +66,33 @@ const ListOfPotholes = ({ navigation }) => {
     }
   };
   const handleSearchByEmail = async () => {
-    if (email.trim() === "" || email.trim().toLowerCase() === "all") {
+    if (email1.trim() === "" || email1.trim().toLowerCase() === "all") {
       // If email input is empty, display all potholes
       getPotholes(setPotholes);
       Alert.alert("All potholes displayed");
     } else {
-      const lowercaseEmail = email.trim().toLowerCase();
+      const lowercaseEmail = email1.trim().toLowerCase();
 
-      const pothole = potholes.find(
+      const filteredPotholes = potholes.filter(
         (pothole) => pothole.email.toLowerCase() === lowercaseEmail
       );
-      if (pothole) {
-        setPotholes([pothole]);
+      if (filteredPotholes.length > 0) {
+        setPotholes(filteredPotholes);
         setEmail("");
-        Alert.alert("Pothole found");
+        Alert.alert("Potholes found");
       } else {
-        Alert.alert("No Pothole found with the given email");
+        Alert.alert("No Potholes found with the given email");
       }
     }
   };
   useEffect(() => {
-    const getUserIdFromStorage = async () => {
+    const getUserStatus = async () => {
       try {
-        // Retrieve userData from AsyncStorage
-        const userDataJSON = await AsyncStorage.getItem("userData");
-
-        // If userData exists, parse it and extract userId
-        if (userDataJSON !== null) {
-          const userData = JSON.parse(userDataJSON);
-          const userid = userData.userId;
-          setUserId(userid);
-          const user = await getUserData(userid);
-          setIsAdmin(user.isAdmin);
-          if (user.isAdmin) {
-            getPotholes(setPotholes);
-            setEmail("");
-          } else {
-            fetchPotholesById(userid, setPotholes);
-          }
+        if (user.isAdmin) {
+          getPotholes(setPotholes);
+          setEmail("");
         } else {
-          console.log("User data not found in AsyncStorage");
-          return null;
+          fetchPotholesById(user.userId, setPotholes);
         }
       } catch (error) {
         console.error("Error getting user data from AsyncStorage:", error);
@@ -105,7 +100,7 @@ const ListOfPotholes = ({ navigation }) => {
       }
     };
 
-    getUserIdFromStorage();
+    getUserStatus();
   }, []);
 
   const handleSaveStatus = async (potholeId, status, update) => {
@@ -136,7 +131,10 @@ const ListOfPotholes = ({ navigation }) => {
       <View
         style={[
           styles.item,
-          { borderColor: item.userId === userId ? "lightgreen" : COLORS.white },
+          {
+            borderColor:
+              item.userId === user.userId ? "lightgreen" : COLORS.white,
+          },
         ]}
       >
         <Text style={{ ...FONTS.h2, color: COLORS.white }}>
@@ -167,7 +165,7 @@ const ListOfPotholes = ({ navigation }) => {
             title="Delete"
             onPress={() => handleDelete(item.id)}
           />
-          {isAdmin && (
+          {user.isAdmin && (
             <>
               {editingPotholeId === item.id && isFormOpen ? (
                 <Modal visible={isModalVisible} animationType="slide">
@@ -198,7 +196,7 @@ const ListOfPotholes = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
-      {isAdmin && (
+      {user.isAdmin && (
         <View style={styles.input}>
           <Input
             id="email"
@@ -207,7 +205,7 @@ const ListOfPotholes = ({ navigation }) => {
               console.log(`Input ${id} changed: ${text}`);
             }}
             color={"grey"}
-            value={email}
+            value={email1}
             placeholder="Search by email"
           />
           <Button title="Search" onPress={handleSearchByEmail} />

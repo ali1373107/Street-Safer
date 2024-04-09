@@ -67,29 +67,33 @@ export const updateUser = async (userData) => {
     throw error;
   }
 };
-export const getUserByEmail = (email, setUser) => {
-  const db = getDatabase();
-  const usersRef = ref(db, "users");
-  const userQuery = query(
-    usersRef,
-    orderByChild("email").equalTo(email.toLowerCase())
-  );
-  const listener = onValue(userQuery, (snapshot) => {
-    const userData = snapshot.val();
-    if (userData) {
-      // Since there should be only one user with the given email, get the first entry
-      const usersArray = Object.entries(userData).map(([key, value]) => ({
-        id: key,
-        ...value,
-      }));
-      setUser(usersArray);
+export const getUserByEmail = async (email) => {
+  try {
+    const db = getDatabase();
+    const usersRef = ref(db, "users");
+    const userQuery = query(
+      usersRef,
+      orderByChild("email"),
+      equalTo(email.toLowerCase())
+    );
+
+    const snapshot = await get(userQuery); // Use once instead of onValue
+
+    if (snapshot.exists()) {
+      // User found
+      const userData = snapshot.val();
+      const userId = Object.keys(userData)[0]; // Assuming there's only one user with the given email
+      const user = { id: userId, ...userData[userId] };
+      return user;
     } else {
-      setUser([]); // No user found with the given email
+      // No user found with the given email
+      return null;
     }
-  });
-  return () => {
-    listener();
-  };
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    Alert.alert("Error", "Failed to fetch user. Please try again.");
+    return null;
+  }
 };
 export const getUserById = async (userId, setUsers) => {
   const db = getDatabase();

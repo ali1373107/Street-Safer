@@ -29,6 +29,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/Entypo";
+import { UserProvider } from "./screens/UserContext";
 
 const TabNav = ({ loggedIn }) => {
   const Tab = createBottomTabNavigator();
@@ -74,6 +75,7 @@ const StackNav = ({ loggedIn }) => {
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       <Stack.Screen name="ListOfPotholes" component={ListOfPotholes} />
       <Stack.Screen name="LogoutScreen" component={LogoutScreen} />
+      <Stack.Screen name="Login" component={Login} />
     </Stack.Navigator>
   );
 };
@@ -127,9 +129,11 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <DrawerNav loggedIn={loggedIn} />
-      </NavigationContainer>
+      <UserProvider>
+        <NavigationContainer>
+          <DrawerNav loggedIn={loggedIn} />
+        </NavigationContainer>
+      </UserProvider>
     </Provider>
   );
 }

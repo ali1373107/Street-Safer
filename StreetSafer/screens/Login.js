@@ -16,7 +16,9 @@ import Button from "../components/Button";
 import { reducer } from "../utils/reducers/formReducers";
 import { validateInput } from "../utils/actions/formActions";
 import { signIn } from "../utils/actions/authAction";
+import { getUserByEmail } from "../utils/actions/userActions";
 import { useDispatch } from "react-redux";
+import { useUser } from "./UserContext";
 const isTestMode = true;
 const initalState = {
   inputValues: {
@@ -30,9 +32,13 @@ const initalState = {
   formIsValid: false,
 };
 const Login = ({ navigation }) => {
+  const { setUser } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
   const [formState, dispatchFormState] = useReducer(reducer, initalState);
+  const [userId, setUserId] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [email, setEmail] = useState("");
   const dispatch = useDispatch();
 
   const inputChangedHandeler = useCallback(
@@ -45,6 +51,9 @@ const Login = ({ navigation }) => {
   const authHandeler = async () => {
     try {
       setIsLoading(true);
+      const email = formState.inputValues.email;
+      console.log("email", email);
+      await handleSearchByEmail(email);
       const action = signIn(
         formState.inputValues.email,
         formState.inputValues.password
@@ -63,11 +72,17 @@ const Login = ({ navigation }) => {
       setError(error.message);
     }
   };
-  useEffect(() => {
-    if (error) {
-      Alert.alert("An error occured", error);
+
+  const handleSearchByEmail = async (email) => {
+    const lowercaseEmail = email.trim().toLowerCase();
+    const user = await getUserByEmail(lowercaseEmail);
+    if (user) {
+      setUser(user); // Update the users state with the found user
+    } else {
+      Alert.alert("No user found with the given email");
     }
-  }, [error]);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView

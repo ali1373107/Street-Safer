@@ -23,6 +23,7 @@ import axios from "axios";
 import { set, update } from "firebase/database";
 import { getUserData } from "../utils/actions/userActions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useUser } from "./UserContext";
 
 // Function to get the userId of the currently logged-in user
 const AddPothole = () => {
@@ -37,7 +38,16 @@ const AddPothole = () => {
   const [image, setImage] = useState("");
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState("");
-
+  const { user } = useUser();
+  if (!user) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text style={styles.text}>No user data available</Text>
+      </SafeAreaView>
+    );
+  }
   const takePhoto = async () => {
     try {
       const cameraResp = await ImagePicker.launchCameraAsync({
@@ -88,8 +98,8 @@ const AddPothole = () => {
         name,
         status,
         update,
-        userId,
-        email
+        user.userId,
+        user.email
       );
       await storeImageToStorage(image, name);
       Alert.alert("Pothole created successfully");
@@ -123,31 +133,6 @@ const AddPothole = () => {
     setLongitude(lon);
     fetchAddress(lat, lon);
   };
-  useEffect(() => {
-    const getUserIdFromStorage = async () => {
-      try {
-        // Retrieve userData from AsyncStorage
-        const userDataJSON = await AsyncStorage.getItem("userData");
-
-        // If userData exists, parse it and extract userId
-        if (userDataJSON !== null) {
-          const userData = JSON.parse(userDataJSON);
-          const userid = userData.userId;
-          setUserId(userid);
-          const user = await getUserData(userid);
-          setEmail(user.email);
-        } else {
-          console.log("User data not found in AsyncStorage");
-          return null;
-        }
-      } catch (error) {
-        console.error("Error getting user data from AsyncStorage:", error);
-        return null;
-      }
-    };
-
-    getUserIdFromStorage();
-  }, []);
 
   return (
     <KeyboardAvoidingView

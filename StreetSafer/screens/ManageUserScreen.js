@@ -1,39 +1,33 @@
 import React, { useState, useEffect } from "react";
-import {
-  FlatList,
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  TextInput,
-} from "react-native";
-import {
-  getAllUsers,
-  updateUser,
-  getUserById,
-  getUserByEmail,
-} from "../utils/actions/userActions";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { FlatList, View, Text, StyleSheet, Alert } from "react-native";
+import { getAllUsers } from "../utils/actions/userActions";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useUser } from "./UserContext";
 
 import { COLORS, images, FONTS, SIZES } from "../constants";
-import { getDatabase, ref, remove } from "firebase/database";
-import { getUserData } from "../utils/actions/userActions";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getDatabase, ref, remove, set } from "firebase/database";
 
 const ManageUserScreen = () => {
   const [users, setUsers] = useState([]);
-  const [unsubscribe, setUnsubscribe] = useState(null);
-  const [editMode, setEditMode] = useState(false);
+  const { user } = useUser();
+  if (!user) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text style={styles.text}>No user data available</Text>
+      </SafeAreaView>
+    );
+  }
   const [editData, setEditData] = useState({
     id: "",
     fullName: "",
     emails: "",
     isAdmin: false,
   });
-  const [userId, setUserId] = useState(null);
+  //const [userId, setUserId] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -41,24 +35,14 @@ const ManageUserScreen = () => {
     try {
       const db = getDatabase();
       await remove(ref(db, `users/${userId}`));
-      setUsers(users.filter((user) => user.id !== userId));
+      setUsers(users.filter((user1) => user1.id !== userId));
       Alert.alert("Success", "User deleted successfully");
     } catch (error) {
       console.error("Error deleting user:", error);
       Alert.alert("Error", "Failed to delete user. Please try again.");
     }
   };
-  const handleEdit = async () => {
-    console.log("editData", editData);
-    try {
-      await updateUser(editData);
-      setEditMode(false);
-      Alert.alert("Success", "User updated successfully");
-    } catch (error) {
-      console.error("Error updating user:", error);
-      Alert.alert("Error", "Failed to update user. Please try again.");
-    }
-  };
+
   const handleSearchByEmail = () => {
     if (email.trim() === "" || email.trim().toLowerCase() === "all") {
       // If email input is empty, display all users
@@ -66,13 +50,13 @@ const ManageUserScreen = () => {
       Alert.alert("All Users Retrieved ");
     } else {
       const lowercaseEmail = email.trim().toLowerCase();
-      const user = users.find(
-        (user) => user.email.toLowerCase() === lowercaseEmail
+      const user1 = users.find(
+        (user1) => user1.email.toLowerCase() === lowercaseEmail
       );
       Alert.alert("User Retrieved");
 
-      if (user) {
-        setUsers([user]); // Update the users state with the found user
+      if (user1) {
+        setUsers([user1]); // Update the users state with the found user
       } else {
         Alert.alert("No user found with the given email");
       }
@@ -82,15 +66,13 @@ const ManageUserScreen = () => {
     const getUserIdFromStorage = async () => {
       try {
         // Retrieve userData from AsyncStorage
-        const userDataJSON = await AsyncStorage.getItem("userData");
+        // const userDataJSON = await AsyncStorage.getItem("userData");
 
         // If userData exists, parse it and extract userId
-        if (userDataJSON !== null) {
-          const userData = JSON.parse(userDataJSON);
-          const userid = userData.userId;
-          setUserId(userid);
+        if (user !== null) {
+          //const userData = JSON.parse(userDataJSON);
+          const userid = user.userId;
           console.log("useridsy", userid);
-          const user = await getUserData(userid);
           console.log("user", user);
           setIsAdmin(user.isAdmin);
           if (user.isAdmin) {
@@ -99,7 +81,8 @@ const ManageUserScreen = () => {
 
             setEmail("");
           } else {
-            await getUserById(userid, setUsers);
+            // await getUserById(userid, setUsers);
+            setUsers([user]);
             Alert.alert("Success");
           }
         } else {
@@ -134,7 +117,10 @@ const ManageUserScreen = () => {
       <View
         style={[
           styles.item,
-          { borderColor: item.userId === userId ? "lightgreen" : COLORS.white },
+          {
+            borderColor:
+              item.userId === user.userId ? "lightgreen" : COLORS.white,
+          },
         ]}
       >
         <Text style={{ ...FONTS.h2, color: COLORS.white }}>
@@ -152,41 +138,21 @@ const ManageUserScreen = () => {
           {item.isAdmin ? "Admin" : "User"}
         </Text>
 
-        {editMode && editData.id === item.id ? (
-          <View>
-            <TextInput
-              style={styles.input}
-              placeholder="Full Name"
-              value={editData.fullName}
-              onChangeText={(text) =>
-                setEditData({ ...editData, fullName: text })
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={editData.email}
-              onChangeText={(text) => setEditData({ ...editData, email: text })}
-            />
-            <Button title="Save" onPress={handleEdit} />
-          </View>
-        ) : (
-          <View style={styles.container}>
-            <Button
-              style={styles.button}
-              title="Delete"
-              onPress={() => handleDelete(item.id)}
-            />
-            <Button
-              style={styles.button}
-              title="Edit"
-              onPress={() => {
-                setEditMode(true);
-                setEditData({ ...item, email: "" });
-              }}
-            />
-          </View>
-        )}
+        <View style={styles.container}>
+          <Button
+            style={styles.button}
+            title="Delete"
+            onPress={() => handleDelete(item.id)}
+          />
+          <Button
+            style={styles.button}
+            title="Edit"
+            onPress={() => {
+              setEditMode(true);
+              setEditData({ ...item, email: "" });
+            }}
+          />
+        </View>
       </View>
     </View>
   );
