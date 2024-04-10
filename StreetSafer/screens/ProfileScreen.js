@@ -18,15 +18,6 @@ const ProfileScreen = ({ navigation }) => {
   //const [user, setUser] = useState([]);
   const { user } = useUser();
 
-  if (!user) {
-    return (
-      <SafeAreaView
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <Text style={styles.text}>No user data available</Text>
-      </SafeAreaView>
-    );
-  }
   const formatDate = (dateString) => {
     const dateObject = new Date(dateString);
 
@@ -39,6 +30,15 @@ const ProfileScreen = ({ navigation }) => {
       return "Invalid Date";
     }
   };
+  if (!user) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text style={styles.text}>No user data available</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

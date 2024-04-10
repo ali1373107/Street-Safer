@@ -20,21 +20,19 @@ import { useUser } from "./UserContext";
 const LogoutScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
-
+  const { logOut } = useUser();
   const handleLogout = async () => {
     setIsLoading(true);
 
     const auth = getAuth();
     try {
       dispatch(logout());
-      const { logOut } = useUser();
-      logOut();
       // Sign out from Firebase
       await signOut(auth);
 
       // Clear user data from AsyncStorage
       await AsyncStorage.removeItem("userData");
-
+      logOut();
       // Navigate to the desired screen after logout
       navigation.navigate("PotholesOnMap");
 

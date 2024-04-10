@@ -12,21 +12,7 @@ import { getDatabase, ref, remove, set } from "firebase/database";
 const ManageUserScreen = () => {
   const [users, setUsers] = useState([]);
   const { user } = useUser();
-  if (!user) {
-    return (
-      <SafeAreaView
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <Text style={styles.text}>No user data available</Text>
-      </SafeAreaView>
-    );
-  }
-  const [editData, setEditData] = useState({
-    id: "",
-    fullName: "",
-    emails: "",
-    isAdmin: false,
-  });
+
   //const [userId, setUserId] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState("");
@@ -141,21 +127,22 @@ const ManageUserScreen = () => {
         <View style={styles.container}>
           <Button
             style={styles.button}
-            title="Delete"
+            title="Delete account"
             onPress={() => handleDelete(item.id)}
-          />
-          <Button
-            style={styles.button}
-            title="Edit"
-            onPress={() => {
-              setEditMode(true);
-              setEditData({ ...item, email: "" });
-            }}
           />
         </View>
       </View>
     </View>
   );
+  if (!user) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text style={styles.text}>No user data available</Text>
+      </SafeAreaView>
+    );
+  }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
       {isAdmin && (

@@ -45,15 +45,6 @@ const ListOfPotholes = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { user } = useUser();
 
-  if (!user) {
-    return (
-      <SafeAreaView
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <Text style={styles.text}>No user data available</Text>
-      </SafeAreaView>
-    );
-  }
   const handleDelete = async (potholeId) => {
     try {
       const db = getDatabase();
@@ -125,7 +116,15 @@ const ListOfPotholes = ({ navigation }) => {
     setIsFormOpen(false);
     console.log("Cancel button pressed");
   };
-
+  if (!user) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text style={styles.text}>No user data available</Text>
+      </SafeAreaView>
+    );
+  }
   const renderItem = ({ item }) => (
     <View style={{ backgroundColor: COLORS.primary }}>
       <View
