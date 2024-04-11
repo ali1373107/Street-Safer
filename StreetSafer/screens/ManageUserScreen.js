@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { FlatList, View, Text, StyleSheet, Alert } from "react-native";
+import {
+  FlatList,
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { getAllUsers } from "../utils/actions/userActions";
 import Button from "../components/Button";
 import Input from "../components/Input";
@@ -139,7 +146,13 @@ const ManageUserScreen = () => {
       <SafeAreaView
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
       >
-        <Text style={styles.text}>No user data available</Text>
+        <Text style={styles.text}>No data available</Text>
+        <Text style={styles.text}>Login requred! </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Text style={{ ...FONTS.h3, color: COLORS.primary }}>
+            Go To Login
+          </Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }

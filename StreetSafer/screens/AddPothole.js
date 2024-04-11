@@ -8,25 +8,20 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
-  TextInput,
+  TouchableOpacity,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import { COLORS, SIZES } from "../constants";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { COLORS, SIZES, FONTS } from "../constants";
 import { createPothole } from "../utils/actions/potholeAction";
 import * as ImagePicker from "expo-image-picker";
 import { storeImageToStorage } from "../utils/firebaseHelper";
 import Map from "../components/Map";
 import axios from "axios";
-import { set, update } from "firebase/database";
-import { getUserData } from "../utils/actions/userActions";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "./UserContext";
 
-// Function to get the userId of the currently logged-in user
-const AddPothole = () => {
+const AddPothole = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [streetName, setStreetName] = useState("");
   const [postcode, setPostcode] = useState("");
@@ -36,15 +31,19 @@ const AddPothole = () => {
   const [dangerLevel, setDangerLevel] = useState("Not Dangerous");
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
   const [image, setImage] = useState("");
-  const [email, setEmail] = useState("");
-  const [userId, setUserId] = useState("");
   const { user } = useUser();
   if (!user) {
     return (
       <SafeAreaView
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
       >
-        <Text style={styles.text}>No user data available</Text>
+        <Text style={styles.text}>No data available</Text>
+        <Text style={styles.text}>Login requred! </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Text style={{ ...FONTS.h3, color: COLORS.primary }}>
+            Go To Login
+          </Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -75,7 +74,6 @@ const AddPothole = () => {
       const { postcode, road } = address;
       setPostcode(postcode || "Not Available");
       setStreetName(road || "Not Available");
-      Alert.alert("Address fetched successfully");
     } catch (error) {
       console.error("Error fetching address:", error);
     }

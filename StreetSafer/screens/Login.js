@@ -8,7 +8,7 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useCallback, useReducer, useState } from "react";
 
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import Input from "../components/Input";
@@ -36,9 +36,6 @@ const Login = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
   const [formState, dispatchFormState] = useReducer(reducer, initalState);
-  const [userId, setUserId] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [email, setEmail] = useState("");
   const dispatch = useDispatch();
 
   const inputChangedHandeler = useCallback(
@@ -113,6 +110,7 @@ const Login = ({ navigation }) => {
             placeholderTextColor={COLORS.gray}
             errorText={formState.inputValidities["password"]}
             onInputChanged={inputChangedHandeler}
+            secureTextEntry
           />
           <Button
             title="LOGIN"

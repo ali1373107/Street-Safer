@@ -5,37 +5,18 @@ import {
   Text,
   StyleSheet,
   Alert,
-  TextInput,
   Modal,
+  TouchableOpacity,
 } from "react-native";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Button from "../components/Button";
-import { COLORS, images, FONTS, SIZES } from "../constants";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getUserData } from "../utils/actions/userActions";
-import { useNavigation } from "@react-navigation/native";
+import { COLORS, FONTS } from "../constants";
 import Input from "../components/Input";
 import EditPotholeForm from "../components/EditPotholeForm";
 import { useUser } from "./UserContext";
 
-import {
-  fetchPotholesById,
-  getPotholes,
-  fetchPotholesByEmail,
-} from "../utils/actions/potholeAction";
+import { fetchPotholesById, getPotholes } from "../utils/actions/potholeAction";
 
-import {
-  getDatabase,
-  ref,
-  query,
-  orderByChild,
-  equalTo,
-  onValue,
-  off,
-  remove,
-  set,
-  get,
-} from "firebase/database";
+import { getDatabase, ref, remove, set } from "firebase/database";
 import { SafeAreaView } from "react-native-safe-area-context";
 const ListOfPotholes = ({ navigation }) => {
   const [potholes, setPotholes] = useState([]);
@@ -86,7 +67,7 @@ const ListOfPotholes = ({ navigation }) => {
           fetchPotholesById(user.userId, setPotholes);
         }
       } catch (error) {
-        console.error("Error getting user data from AsyncStorage:", error);
+        console.error("Error getting user's status:", error);
         return null;
       }
     };
@@ -121,7 +102,13 @@ const ListOfPotholes = ({ navigation }) => {
       <SafeAreaView
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
       >
-        <Text style={styles.text}>No user data available</Text>
+        <Text style={styles.text}>No data available</Text>
+        <Text style={styles.text}>Login requred! </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Text style={{ ...FONTS.h3, color: COLORS.primary }}>
+            Go To Login
+          </Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -251,4 +238,3 @@ const styles = StyleSheet.create({
 });
 
 export default ListOfPotholes;
-//frameprocessor

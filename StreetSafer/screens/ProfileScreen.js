@@ -8,6 +8,7 @@ import {
   TextInput,
   Button,
   Image,
+  TouchableOpacity,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -35,7 +36,13 @@ const ProfileScreen = ({ navigation }) => {
       <SafeAreaView
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
       >
-        <Text style={styles.text}>No user data available</Text>
+        <Text style={styles.text}>No data available</Text>
+        <Text style={styles.text}>Login requred! </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Text style={{ ...FONTS.h3, color: COLORS.primary }}>
+            Go To Login
+          </Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -68,7 +75,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.buttonView}>
           <Button
             color={COLORS.primary}
-            title="Loghout"
+            title="Logout"
             onPress={() => navigation.navigate("LogoutScreen")}
           />
         </View>
