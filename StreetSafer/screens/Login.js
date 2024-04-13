@@ -8,7 +8,7 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useCallback, useReducer, useState } from "react";
 
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import Input from "../components/Input";
@@ -16,7 +16,9 @@ import Button from "../components/Button";
 import { reducer } from "../utils/reducers/formReducers";
 import { validateInput } from "../utils/actions/formActions";
 import { signIn } from "../utils/actions/authAction";
+import { getUserByEmail } from "../utils/actions/userActions";
 import { useDispatch } from "react-redux";
+import { useUser } from "./UserContext";
 const isTestMode = true;
 const initalState = {
   inputValues: {
@@ -30,6 +32,7 @@ const initalState = {
   formIsValid: false,
 };
 const Login = ({ navigation }) => {
+  const { setUser } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
   const [formState, dispatchFormState] = useReducer(reducer, initalState);
@@ -45,6 +48,9 @@ const Login = ({ navigation }) => {
   const authHandeler = async () => {
     try {
       setIsLoading(true);
+      const email = formState.inputValues.email;
+      console.log("email", email);
+      await handleSearchByEmail(email);
       const action = signIn(
         formState.inputValues.email,
         formState.inputValues.password
@@ -53,17 +59,27 @@ const Login = ({ navigation }) => {
       setError(null);
       Alert.alert("Login Successfully", "Successfully signed in ");
       setIsLoading(false);
+      navigation.navigate("PotholesOnMap");
+      if (typeof fetchUser === "function") {
+        await fetchUser();
+      }
     } catch (error) {
       console.log(error);
       setIsLoading(false);
       setError(error.message);
     }
   };
-  useEffect(() => {
-    if (error) {
-      Alert.alert("An error occured", error);
+
+  const handleSearchByEmail = async (email) => {
+    const lowercaseEmail = email.trim().toLowerCase();
+    const user = await getUserByEmail(lowercaseEmail);
+    if (user) {
+      setUser(user); // Update the users state with the found user
+    } else {
+      Alert.alert("No user found with the given email");
     }
-  }, [error]);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView
@@ -81,6 +97,7 @@ const Login = ({ navigation }) => {
         <View style={{ marginVertical: 22 }}>
           <Input
             id="email"
+            color={COLORS.white}
             placeholder="Email Address"
             placeholderTextColor={COLORS.gray}
             errorText={formState.inputValidities["email"]}
@@ -88,10 +105,12 @@ const Login = ({ navigation }) => {
           />
           <Input
             id="password"
+            color={COLORS.white}
             placeholder="Password"
             placeholderTextColor={COLORS.gray}
             errorText={formState.inputValidities["password"]}
             onInputChanged={inputChangedHandeler}
+            secureTextEntry
           />
           <Button
             title="LOGIN"

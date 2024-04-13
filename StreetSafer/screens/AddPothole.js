@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,32 +8,20 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
+  TouchableOpacity,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import { COLORS, SIZES } from "../constants";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { COLORS, SIZES, FONTS } from "../constants";
 import { createPothole } from "../utils/actions/potholeAction";
 import * as ImagePicker from "expo-image-picker";
 import { storeImageToStorage } from "../utils/firebaseHelper";
 import Map from "../components/Map";
-// Function to get the userId of the currently logged-in user
-const getUserId = () => {
-  return new Promise((resolve, reject) => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, return the userId
-        resolve(user.uid);
-      } else {
-        // No user is signed in
-        reject("No user signed in");
-      }
-    });
-  });
-};
-const AddPothole = () => {
+import axios from "axios";
+import { useUser } from "./UserContext";
+
+const AddPothole = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [streetName, setStreetName] = useState("");
   const [postcode, setPostcode] = useState("");
@@ -43,6 +31,22 @@ const AddPothole = () => {
   const [dangerLevel, setDangerLevel] = useState("Not Dangerous");
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
   const [image, setImage] = useState("");
+  const { user } = useUser();
+  if (!user) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text style={styles.text}>No data available</Text>
+        <Text style={styles.text}>Login requred! </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Text style={{ ...FONTS.h3, color: COLORS.primary }}>
+            Go To Login
+          </Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
   const takePhoto = async () => {
     try {
       const cameraResp = await ImagePicker.launchCameraAsync({
@@ -55,9 +59,23 @@ const AddPothole = () => {
         const { uri } = cameraResp.assets[0];
         console.log("Image URI", uri);
         setImage(uri);
+        Alert.alert("Image taken successfully");
       }
     } catch (e) {
       Alert.alert("Error Uploading Image " + e.message);
+    }
+  };
+  const fetchAddress = async (latitude, longitude) => {
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+      );
+      const { address } = response.data;
+      const { postcode, road } = address;
+      setPostcode(postcode || "Not Available");
+      setStreetName(road || "Not Available");
+    } catch (error) {
+      console.error("Error fetching address:", error);
     }
   };
 
@@ -65,7 +83,9 @@ const AddPothole = () => {
     setIsLoading(true);
     try {
       const name = image.split("/").pop();
-      const userId = await getUserId();
+      const status = "Reported";
+      const update = "Pending Review";
+
       await createPothole(
         streetName,
         postcode,
@@ -74,10 +94,14 @@ const AddPothole = () => {
         dangerLevel,
         description,
         name,
-        userId
+        status,
+        update,
+        user.userId,
+        user.email
       );
-
       await storeImageToStorage(image, name);
+      Alert.alert("Pothole created successfully");
+
       console.log("Pothole created successfully");
       // Reset form fields after successful submission
       setStreetName("");
@@ -95,18 +119,6 @@ const AddPothole = () => {
   };
   const inputChangedHandler = (inputId, text) => {
     switch (inputId) {
-      case "streetName":
-        setStreetName(text);
-        break;
-      case "postcode":
-        setPostcode(text);
-        break;
-      case "latitude":
-        setLatitude(text);
-        break;
-      case "longitude":
-        setLongitude(text);
-        break;
       case "description":
         setDescription(text);
         break;
@@ -117,6 +129,7 @@ const AddPothole = () => {
   const handleLocationSelect = (lat, lon) => {
     setLatitude(lat);
     setLongitude(lon);
+    fetchAddress(lat, lon);
   };
 
   return (
@@ -133,15 +146,19 @@ const AddPothole = () => {
             <Input
               id="streetName"
               placeholder="Street Name"
+              value={streetName}
               placeholderTextColor={COLORS.gray}
               onInputChanged={inputChangedHandler}
+              color={COLORS.white}
             />
             <Input
               id="postcode"
               style={styles.input}
+              value={postcode}
               placeholder="Postcode"
               placeholderTextColor={COLORS.gray}
               onInputChanged={inputChangedHandler}
+              color={COLORS.white}
             />
 
             <Input
@@ -149,6 +166,7 @@ const AddPothole = () => {
               placeholder="Description"
               placeholderTextColor={COLORS.gray}
               onInputChanged={inputChangedHandler}
+              color={COLORS.white}
             />
             <Text style={styles.label}>Danger Level:</Text>
             <Picker

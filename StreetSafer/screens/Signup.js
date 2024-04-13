@@ -14,9 +14,9 @@ import { validate } from "validate.js";
 const isTestMode = true;
 const initialState = {
   inputValues: {
-    fullName: isTestMode ? "Ali Dashti" : "",
-    email: isTestMode ? "Ali@gmail.com" : "",
-    password: isTestMode ? "*******" : "",
+    fullName: isTestMode ? "" : "",
+    email: isTestMode ? "" : "",
+    password: isTestMode ? "" : "",
   },
   inputValidities: {
     fullName: false,
@@ -82,7 +82,7 @@ const Signup = ({ navigation }) => {
             placeholder="Name"
             onInputChanged={inputChangedHandeler}
             errorText={formState.inputValidities["fullName"]}
-            placeHolderTextColor={COLORS.gray}
+            color={COLORS.white}
           />
           <Input
             id="email"
@@ -90,6 +90,7 @@ const Signup = ({ navigation }) => {
             placeHolderTextColor={COLORS.gray}
             errorText={formState.inputValidities["email"]}
             onInputChanged={inputChangedHandeler}
+            color={COLORS.white}
           />
           <Input
             id="password"
@@ -97,6 +98,8 @@ const Signup = ({ navigation }) => {
             placeHolderTextColor={COLORS.gray}
             errorText={formState.inputValidities["password"]}
             onInputChanged={inputChangedHandeler}
+            color={COLORS.white}
+            secureTextEntry
           />
           <Button
             title="SIGNUP"

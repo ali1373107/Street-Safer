@@ -8,7 +8,7 @@ const Input = (props) => {
   };
   return (
     <View style={styles.container}>
-      <View style={[styles.inputContainer, { borderColor: COLORS.gray }]}>
+      <View style={[styles.inputContainer, { borderColor: COLORS.gery }]}>
         <TextInput
           {...props}
           onChangeText={onChangeText}
@@ -41,7 +41,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   input: {
-    color: COLORS.white,
     flex: 1,
     fontFamily: "regular",
     paddingTop: 0,
