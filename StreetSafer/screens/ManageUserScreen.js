@@ -16,7 +16,7 @@ import { useUser } from "./UserContext";
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import { getDatabase, ref, remove, set } from "firebase/database";
 
-const ManageUserScreen = () => {
+const ManageUserScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const { user } = useUser();
 

@@ -1,19 +1,11 @@
 import { StyleSheet, Text, View, Button } from "react-native";
 
-function WelcomeScreen(props) {
+function Privacy(props) {
   console.log(props);
   return (
     <View style={styles.viewStyle}>
       <Text style={styles.headingStyle}>Login & Register In React Native</Text>
       {/* <Text style={styles.textStyle}>This is Home Screen</Text> */}
-      <Button
-        title="Privacy and Policy"
-        onPress={() =>
-          props.navigation.navigate("Privacy", {
-            name: "Aadarsh",
-          })
-        }
-      />
     </View>
   );
 }
@@ -34,4 +26,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-export default WelcomeScreen;
+export default Privacy;
