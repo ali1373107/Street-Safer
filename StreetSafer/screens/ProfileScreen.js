@@ -12,8 +12,10 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS, images, FONTS, SIZES } from "../constants";
+import { COLORS, FONTS } from "../constants";
+import { getFirebaseApp } from "../utils/firebaseHelper";
 
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { useUser } from "./UserContext";
 const ProfileScreen = ({ navigation }) => {
   //const [user, setUser] = useState([]);
@@ -46,6 +48,21 @@ const ProfileScreen = ({ navigation }) => {
       </SafeAreaView>
     );
   }
+  const changePassword = () => {
+    const app = getFirebaseApp();
+    const auth = getAuth(app);
+    sendPasswordResetEmail(auth, user.email)
+      .then(() => {
+        Alert.alert("Password reset email sent successfully");
+      })
+      .catch((error) => {
+        console.error("Error sending password reset email:", error);
+        Alert.alert(
+          "Error",
+          "Failed to send password reset email. Please try again."
+        );
+      });
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -73,6 +90,13 @@ const ProfileScreen = ({ navigation }) => {
           </Text>
         </View>
         <View style={styles.buttonView}>
+          <Button
+            color={COLORS.primary}
+            title="change password"
+            onPress={() => {
+              changePassword();
+            }}
+          />
           <Button
             color={COLORS.primary}
             title="Logout"

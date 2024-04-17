@@ -7,20 +7,19 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import { getAllUsers } from "../utils/actions/userActions";
+import { getAllUsers, getUserById } from "../utils/actions/userActions";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useUser } from "./UserContext";
 
-import { COLORS, images, FONTS, SIZES } from "../constants";
-import { getDatabase, ref, remove, set } from "firebase/database";
+import { COLORS, FONTS } from "../constants";
+import { getDatabase, ref, remove } from "firebase/database";
 
-const ManageUserScreen = () => {
+const ManageUserScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const { user } = useUser();
 
-  //const [userId, setUserId] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -38,7 +37,6 @@ const ManageUserScreen = () => {
 
   const handleSearchByEmail = () => {
     if (email.trim() === "" || email.trim().toLowerCase() === "all") {
-      // If email input is empty, display all users
       getAllUsers(setUsers);
       Alert.alert("All Users Retrieved ");
     } else {
@@ -49,21 +47,16 @@ const ManageUserScreen = () => {
       Alert.alert("User Retrieved");
 
       if (user1) {
-        setUsers([user1]); // Update the users state with the found user
+        setUsers([user1]);
       } else {
         Alert.alert("No user found with the given email");
       }
     }
   };
   useEffect(() => {
-    const getUserIdFromStorage = async () => {
+    const getUser = async () => {
       try {
-        // Retrieve userData from AsyncStorage
-        // const userDataJSON = await AsyncStorage.getItem("userData");
-
-        // If userData exists, parse it and extract userId
         if (user !== null) {
-          //const userData = JSON.parse(userDataJSON);
           const userid = user.userId;
           console.log("useridsy", userid);
           console.log("user", user);
@@ -74,7 +67,7 @@ const ManageUserScreen = () => {
 
             setEmail("");
           } else {
-            // await getUserById(userid, setUsers);
+            await getUserById(user.userId, setUsers);
             setUsers([user]);
             Alert.alert("Success");
           }
@@ -88,9 +81,7 @@ const ManageUserScreen = () => {
       }
     };
 
-    // Fetch potholes data when the component mounts
-
-    getUserIdFromStorage();
+    getUser();
   }, []);
   const formatDate = (dateString) => {
     const dateObject = new Date(dateString);
@@ -216,4 +207,3 @@ const styles = StyleSheet.create({
 });
 
 export default ManageUserScreen;
-//frameprocessor

@@ -7,9 +7,11 @@ import {
   Image,
   Alert,
   TouchableOpacity,
+  Modal,
+  TextInput,
+  Button as RNButton,
 } from "react-native";
 import React, { useCallback, useReducer, useState } from "react";
-
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -19,6 +21,9 @@ import { signIn } from "../utils/actions/authAction";
 import { getUserByEmail } from "../utils/actions/userActions";
 import { useDispatch } from "react-redux";
 import { useUser } from "./UserContext";
+import { getFirebaseApp } from "../utils/firebaseHelper";
+
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 const isTestMode = true;
 const initalState = {
   inputValues: {
@@ -37,6 +42,8 @@ const Login = ({ navigation }) => {
   const [error, setError] = useState();
   const [formState, dispatchFormState] = useReducer(reducer, initalState);
   const dispatch = useDispatch();
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
 
   const inputChangedHandeler = useCallback(
     (inputId, inputValue) => {
@@ -59,7 +66,7 @@ const Login = ({ navigation }) => {
       setError(null);
       Alert.alert("Login Successfully", "Successfully signed in ");
       setIsLoading(false);
-      navigation.navigate("PotholesOnMap");
+      navigation.navigate("Map");
       if (typeof fetchUser === "function") {
         await fetchUser();
       }
@@ -69,7 +76,24 @@ const Login = ({ navigation }) => {
       setError(error.message);
     }
   };
-
+  const handleForgotPassword = async () => {
+    const app = getFirebaseApp();
+    const auth = getAuth(app);
+    try {
+      setIsLoading(true);
+      await sendPasswordResetEmail(auth, forgotPasswordEmail);
+      setIsLoading(false);
+      setShowForgotPasswordModal(false);
+      Alert.alert(
+        "Password Reset Email Sent",
+        "Please check your email to reset your password."
+      );
+    } catch (error) {
+      console.error("Error sending password reset email:", error);
+      setIsLoading(false);
+      setError("Failed to send password reset email. Please try again.");
+    }
+  };
   const handleSearchByEmail = async (email) => {
     const lowercaseEmail = email.trim().toLowerCase();
     const user = await getUserByEmail(lowercaseEmail);
@@ -118,6 +142,45 @@ const Login = ({ navigation }) => {
             isLoading={isLoading}
             style={{ width: SIZES.width - 32, marginVertical: 8 }}
           />
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={showForgotPasswordModal}
+            onRequestClose={() => setShowForgotPasswordModal(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={{ ...FONTS.h2, color: COLORS.white }}>
+                  Forgot Password
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your email"
+                  placeholderTextColor={COLORS.gray}
+                  value={forgotPasswordEmail}
+                  onChangeText={(text) => setForgotPasswordEmail(text)}
+                />
+                <RNButton
+                  title="Send Reset Email"
+                  onPress={handleForgotPassword}
+                />
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setShowForgotPasswordModal(false)}
+                >
+                  <Text style={{ ...FONTS.body3, color: COLORS.white }}>
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+          <TouchableOpacity onPress={() => setShowForgotPasswordModal(true)}>
+            <Text style={{ ...FONTS.body3, color: COLORS.white }}>
+              Forgot your password?
+            </Text>
+          </TouchableOpacity>
           <View style={StyleSheet.bottomContainer}>
             <Text style={{ ...FONTS.body3, color: COLORS.white }}>
               Don't have an account?
@@ -137,6 +200,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginVertical: 2,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: COLORS.background,
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    width: "80%",
+  },
+  input: {
+    width: "100%",
+    height: 40,
+    borderWidth: 1,
+    borderColor: COLORS.gray,
+    borderRadius: 8,
+    marginTop: 10,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+    color: COLORS.white,
   },
 });
 export default Login;

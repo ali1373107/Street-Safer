@@ -25,6 +25,7 @@ const ListOfPotholes = ({ navigation }) => {
   const [isFormOpen, setIsFormOpen] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { user } = useUser();
+  const [statusName, setStatusName] = useState("");
 
   const handleDelete = async (potholeId) => {
     try {
@@ -57,12 +58,32 @@ const ListOfPotholes = ({ navigation }) => {
       }
     }
   };
+  const handleFilterByStatus = async () => {
+    if (statusName.trim() === "" || statusName.trim().toLowerCase() === "all") {
+      // If email input is empty, display all potholes
+      getPotholes(setPotholes);
+      Alert.alert("All potholes displayed");
+    } else {
+      const lowercaseStatus = statusName.trim().toLowerCase();
+
+      const filteredPotholes = potholes.filter(
+        (pothole) => pothole.status.toLowerCase() === lowercaseStatus
+      );
+      if (filteredPotholes.length > 0) {
+        setPotholes(filteredPotholes);
+        setStatusName("");
+        Alert.alert("Potholes found");
+      } else {
+        Alert.alert("No Potholes found with the given Status");
+      }
+    }
+  };
   useEffect(() => {
     const getUserStatus = async () => {
       try {
         if (user.isAdmin) {
-          getPotholes(setPotholes);
           setEmail("");
+          handleSearchByEmail();
         } else {
           fetchPotholesById(user.userId, setPotholes);
         }
@@ -183,27 +204,43 @@ const ListOfPotholes = ({ navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
       {user.isAdmin && (
-        <View style={styles.input}>
-          <Input
-            id="email"
-            onInputChanged={(id, text) => {
-              setEmail(text);
-              console.log(`Input ${id} changed: ${text}`);
-            }}
-            color={"grey"}
-            value={email1}
-            placeholder="Search by email"
-          />
-          <Button title="Search" onPress={handleSearchByEmail} />
+        <View>
+          <View style={styles.input}>
+            <Input
+              id="email"
+              onInputChanged={(id, text) => {
+                setEmail(text);
+                console.log(`Input ${id} changed: ${text}`);
+              }}
+              color={"grey"}
+              value={email1}
+              placeholder="Search by email"
+              style={styles.textInput}
+            />
+            <Button title="Search" onPress={handleSearchByEmail} />
+          </View>
+          <View style={styles.input}>
+            <Input
+              id="statusName"
+              onInputChanged={(id, text) => {
+                setStatusName(text);
+                console.log(`Input ${id} changed: ${text}`);
+              }}
+              style={styles.textInput}
+              color={"grey"}
+              value={statusName}
+              placeholder="Search by Pothole Status"
+            />
+            <Button title="Search" onPress={handleFilterByStatus} />
+          </View>
         </View>
       )}
-      <View>
-        <FlatList
-          data={potholes}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      </View>
+
+      <FlatList
+        data={potholes}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+      />
     </SafeAreaView>
   );
 };
@@ -229,11 +266,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 30,
   },
   input: {
-    backgroundColor: COLORS.white,
-    padding: 10,
-    margin: 10,
-    borderRadius: 5,
-    marginTop: -70,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    paddingRight: 80,
+    paddingLeft: 20,
   },
 });
 
