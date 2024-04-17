@@ -12,7 +12,6 @@ const Button = (props) => {
 
   return (
     <TouchableOpacity
-      //opacity of the button when pressed applied here
       style={[styles.btn, props.style, isLoading && styles.pressed]}
       onPress={props.onPress}
     >
