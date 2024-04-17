@@ -16,7 +16,7 @@ Notifications.setNotificationHandler({
 
 function Notification() {
   const [pothole, setPotholes] = useState([]);
-  const [postCode, setPostcode] = useState("");
+  const [StreetName, setStreetName] = useState("");
 
   const scheduleNotificationHandler = async () => {
     const location = await Location.getCurrentPositionAsync({});
@@ -27,19 +27,19 @@ function Notification() {
       `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
     );
     const { address } = response.data;
-    const { postcode } = address || {};
-    console.log("postcode", postcode);
-    if (postcode) {
+    const { road } = address || {};
+    console.log("Street Name", road);
+    if (road) {
       // Set postcode state
-      setPostcode(postcode);
+      setStreetName(road);
     }
   };
 
   const sendNotification = async () => {
     const body =
       pothole.length > 0
-        ? `Pothole detected in your area ${postCode}`
-        : `No pothole detected in your area ${postCode}`;
+        ? `Pothole detected in your area ${StreetName}`
+        : `No pothole detected in your area ${StreetName}`;
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "Notification",
@@ -64,14 +64,14 @@ function Notification() {
   }, []);
 
   useEffect(() => {
-    if (postCode) {
+    if (StreetName) {
       const fetchPotholes = async () => {
-        getPotholesByPostcode(postCode, setPotholes);
+        getPotholesByPostcode(StreetName, setPotholes);
       };
 
       fetchPotholes();
     }
-  }, [postCode]);
+  }, [StreetName]);
 
   return (
     <View style={styles.viewStyle}>

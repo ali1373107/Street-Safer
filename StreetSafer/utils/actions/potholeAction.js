@@ -180,15 +180,15 @@ export const fetchPotholesByEmail = (email, setPotholes) => {
     listener();
   };
 };
-export const getPotholesByPostcode = (postcode, setPotholes) => {
+export const getPotholesByPostcode = (streetName, setPotholes) => {
   const app = getFirebaseApp();
   const db = getDatabase(app);
   const potholesRef = ref(db, "potholes");
 
   const potholesQuery = query(
     potholesRef,
-    orderByChild("postcode"),
-    equalTo(postcode)
+    orderByChild("streetName"),
+    equalTo(streetName)
   );
 
   const listener = onValue(potholesQuery, (snapshot) => {
