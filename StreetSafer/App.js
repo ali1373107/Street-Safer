@@ -113,7 +113,7 @@ const DrawerNav = () => {
     >
       <Drawer.Screen name="Menu" component={StackNav} />
       <Drawer.Screen name="DangerousPotholes" component={DangerousPothole} />
-      <Drawer.Screen name="Tabs" component={TabNav} />
+      <Drawer.Screen name="Features" component={TabNav} />
 
       <Drawer.Screen name="Privacy" component={Privacy} />
       <Drawer.Screen name="Login" component={Login} />
