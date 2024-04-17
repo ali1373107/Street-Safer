@@ -198,5 +198,32 @@ export const fetchPotholesByEmail = (email, setPotholes) => {
     listener();
   };
 };
+export const getPotholesByPostcode = (postcode, setPotholes) => {
+  const app = getFirebaseApp();
+  const db = getDatabase(app);
+  const potholesRef = ref(db, "potholes");
 
+  // Create a query to retrieve potholes with matching postcode
+  const potholesQuery = query(
+    potholesRef,
+    orderByChild("postcode"),
+    equalTo(postcode)
+  );
+
+  // Listen for potholes matching the query
+  const listener = onValue(potholesQuery, (snapshot) => {
+    const potholesData = snapshot.val();
+    if (potholesData) {
+      const potholesArray = Object.entries(potholesData).map(
+        ([key, value]) => ({ id: key, ...value })
+      );
+      setPotholes(potholesArray);
+    } else {
+      setPotholes([]);
+    }
+  });
+
+  // Return a function to detach the event listener
+  return () => off(potholesRef, listener);
+};
 ///https://reactnative.dev/docs/pressable

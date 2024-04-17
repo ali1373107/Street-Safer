@@ -176,7 +176,6 @@ const Login = ({ navigation }) => {
             </View>
           </Modal>
 
-          {/* Forgot Password Button */}
           <TouchableOpacity onPress={() => setShowForgotPasswordModal(true)}>
             <Text style={{ ...FONTS.body3, color: COLORS.white }}>
               Forgot your password?
@@ -213,7 +212,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
-    width: "80%", // Set the width of the modal content
+    width: "80%",
   },
   input: {
     width: "100%",

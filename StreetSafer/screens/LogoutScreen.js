@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { getAuth, signOut } from "firebase/auth";
 import Button from "../components/Button";
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useState } from "react";
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch } from "react-redux";
@@ -34,7 +34,7 @@ const LogoutScreen = ({ navigation }) => {
       await AsyncStorage.removeItem("userData");
       logOut();
       // Navigate to the desired screen after logout
-      navigation.navigate("PotholesOnMap");
+      navigation.navigate("Map");
 
       // Show success message
       Alert.alert("Logged out successfully");
@@ -62,9 +62,7 @@ const LogoutScreen = ({ navigation }) => {
         </Text>
         <View style={StyleSheet.bottomContainer}>
           <Text style={{ ...FONTS.body3, color: COLORS.white }}>Or Go to </Text>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("PotholesOnMap")}
-          >
+          <TouchableOpacity onPress={() => navigation.navigate("Map")}>
             <Text style={{ ...FONTS.h3, color: COLORS.white }}>
               Potholes On The Map
             </Text>

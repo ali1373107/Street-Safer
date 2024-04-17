@@ -5,15 +5,14 @@ import {
   DrawerActions,
 } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import WelcomeScreen from "./screens/WelcomeScreen";
 import AddPothole from "./screens/AddPothole";
-import ProfileScreen from "./screens/ProfileScreen";
 import Privacy from "./screens/Privacy";
+import ProfileScreen from "./screens/ProfileScreen";
+import Notification from "./screens/Notification";
 import PotholesOnMap from "./screens/PotholesOnMap";
 import DangerousPothole from "./screens/DangerousPotholes";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
-import React, { useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { COLORS } from "./constants";
@@ -76,13 +75,13 @@ const StackNav = () => {
       }}
     >
       <Stack.Screen name="Map" component={PotholesOnMap} />
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
+      <Stack.Screen name="Privacy" component={Privacy} />
       <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="ListOfPotholes" component={ListOfPotholes} />
       <Stack.Screen name="LogoutScreen" component={LogoutScreen} />
       <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Privacy" component={Privacy} />
+      <Stack.Screen name="Notification" component={Notification} />
     </Stack.Navigator>
   );
 };
@@ -116,7 +115,7 @@ const DrawerNav = () => {
       <Drawer.Screen name="DangerousPotholes" component={DangerousPothole} />
       <Drawer.Screen name="Tabs" component={TabNav} />
 
-      <Drawer.Screen name="about" component={WelcomeScreen} />
+      <Drawer.Screen name="Privacy" component={Privacy} />
       <Drawer.Screen name="Login" component={Login} />
     </Drawer.Navigator>
   );

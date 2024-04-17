@@ -12,8 +12,7 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS, images, FONTS, SIZES } from "../constants";
-import { firebase } from "firebase/database";
+import { COLORS, FONTS } from "../constants";
 import { getFirebaseApp } from "../utils/firebaseHelper";
 
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";

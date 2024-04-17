@@ -21,7 +21,6 @@ import ReportOptions from "../components/ReportOptions";
 import PotholeImage from "../components/PotholeImage";
 import * as Location from "expo-location";
 import { requestForegroundPermissionsAsync } from "expo-location";
-import AllUsersAdminScreen from "./ManageUserScreen";
 
 function PotholesOnMap({ navigation }) {
   const [potholes, setPotholes] = useState([]);
@@ -30,7 +29,6 @@ function PotholesOnMap({ navigation }) {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [email, setEmail] = useState("");
   const [receiveUpdates, setReceiveUpdates] = useState(false);
-  const [imageUrl, setImageUrl] = useState(null);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [lat, setLat] = useState(null);
   const [lon, setLon] = useState(null);
@@ -126,8 +124,8 @@ function PotholesOnMap({ navigation }) {
               initialRegion={{
                 latitude: lat, // Initial map latitude
                 longitude: lon, // Initial map longitude
-                latitudeDelta: 0.0922, // Delta for latitude
-                longitudeDelta: 0.0421, // Delta for longitude
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
               }}
             >
               {potholes.map((pothole, index) => (
@@ -137,9 +135,7 @@ function PotholesOnMap({ navigation }) {
                     latitude: pothole.latitude, // Pothole latitude
                     longitude: pothole.longitude, // Pothole longitude
                   }}
-                  title={`Pothole ${index + 1}: ${pothole.dangerLevel}: ${
-                    pothole.description
-                  }`}
+                  title={` ${pothole.dangerLevel}`}
                   pinColor={getMarkerColor(pothole.dangerLevel)}
                   onPress={() => setSelectedPothole(pothole)}
                 />
@@ -151,14 +147,24 @@ function PotholesOnMap({ navigation }) {
               <View style={styles.container2}>
                 <View>
                   <TouchableOpacity onPress={() => setSelectedPothole(null)}>
-                    <Text style={styles.cancelButton}>X</Text>
+                    <Text style={styles.cancelButton}>Close</Text>
                   </TouchableOpacity>
                 </View>
                 <Text style={styles.permissionText}>Image of the pothole</Text>
                 <PotholeImage selectedPothole={selectedPothole} />
                 <View style={styles.container2}>
-                  <Text style={styles.title}>Pothole Update:</Text>
-                  <Text style={styles.text}>{selectedPothole.update}</Text>
+                  <Text style={styles.title}>Potholes Details</Text>
+
+                  <Text
+                    style={styles.text}
+                  >{`Street name: ${selectedPothole.streetName}`}</Text>
+                  <Text
+                    style={styles.text}
+                  >{`Postcode: ${selectedPothole.postcode}`}</Text>
+
+                  <Text
+                    style={styles.text}
+                  >{`Latest update: ${selectedPothole.update}`}</Text>
                 </View>
 
                 <View style={styles.container2}>
@@ -248,7 +254,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     fontSize: 20,
-    color: "gray",
+    color: "red",
     marginLeft: 1,
     position: "absolute",
     marginTop: -20,

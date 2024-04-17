@@ -80,6 +80,10 @@ const AddPothole = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
+    if (!streetName || !postcode || !latitude || !longitude || !description) {
+      Alert.alert("Please fill all the fields");
+      return;
+    }
     setIsLoading(true);
     try {
       const name = image.split("/").pop();
@@ -112,7 +116,6 @@ const AddPothole = ({ navigation }) => {
       setDescription("");
     } catch (error) {
       console.error("Error creating pothole:", error);
-      // Handle error (e.g., display error message to user)
     } finally {
       setIsLoading(false);
     }

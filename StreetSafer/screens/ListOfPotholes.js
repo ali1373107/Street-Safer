@@ -82,8 +82,8 @@ const ListOfPotholes = ({ navigation }) => {
     const getUserStatus = async () => {
       try {
         if (user.isAdmin) {
-          getPotholes(setPotholes);
           setEmail("");
+          handleSearchByEmail();
         } else {
           fetchPotholesById(user.userId, setPotholes);
         }

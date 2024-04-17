@@ -35,6 +35,13 @@
           "photosPermission": "Allow $(PRODUCT_NAME) to access your photo",
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/car2.jpg",
+          "color": "#ffffff"
+        }
       ]
     ]
   }

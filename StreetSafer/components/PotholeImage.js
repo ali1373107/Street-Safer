@@ -11,7 +11,7 @@ const PotholeImage = ({ selectedPothole }) => {
       try {
         const imageName = selectedPothole.imageUrl;
         const storage = getStorage();
-        const imageRef = ref(storage, `images/${imageName}`); // Updated this line
+        const imageRef = ref(storage, `images/${imageName}`);
         const url = await getDownloadURL(imageRef);
         setImageUrl(url);
       } catch (error) {
@@ -26,7 +26,6 @@ const PotholeImage = ({ selectedPothole }) => {
 
   return (
     <View style={styles.container}>
-      {/* Display other pothole details */}
       {imageUrl && <Image source={{ uri: imageUrl }} style={styles.image} />}
     </View>
   );

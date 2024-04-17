@@ -20,54 +20,51 @@ const ReportOptions = ({ handleOptionSelection }) => {
     <View style={styles.container}>
       <Text style={styles.legend}>Choose options</Text>
 
-      <TouchableOpacity onPress={() => toggleOption("false_information")}>
-        <View style={styles.option}>
-          <View
-            style={[
-              styles.checkbox,
-              selectedOptions.false_information && styles.checked,
-            ]}
-          />
-          <Text style={styles.label}>False Information</Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => toggleOption("scam_or_fraud")}>
-        <View style={styles.option}>
-          <View
-            style={[
-              styles.checkbox,
-              selectedOptions.scam_or_fraud && styles.checked,
-            ]}
-          />
-          <Text style={styles.label}>Scam or Fraud</Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => toggleOption("hate_speech_or_Symbole")}>
-        <View style={styles.option}>
-          <View
-            style={[
-              styles.checkbox,
-              selectedOptions.hate_speech_or_Symbole && styles.checked,
-            ]}
-          />
-          <Text style={styles.label}>Hate Speech or Symbols</Text>
-        </View>
-      </TouchableOpacity>
-
       <TouchableOpacity
-        onPress={() => toggleOption("Sharing_Image_or_Details_of_Others")}
+        onPress={() =>
+          toggleOption("incorrect location for the pothole reported")
+        }
       >
         <View style={styles.option}>
           <View
             style={[
               styles.checkbox,
-              selectedOptions.Sharing_Image_or_Details_of_Others &&
+              selectedOptions.incorrect_location_reported_for_pothole &&
                 styles.checked,
             ]}
           />
-          <Text style={styles.label}>Sharing Image or Details of Others</Text>
+          <Text style={styles.label}>
+            Incorrect location for the pothole reported
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => toggleOption("Sharing_irrelevant_Image")}
+      >
+        <View style={styles.option}>
+          <View
+            style={[
+              styles.checkbox,
+              selectedOptions.Sharing_irrelevant_Image && styles.checked,
+            ]}
+          />
+          <Text style={styles.label}>Sharing irrelevant Image</Text>
+        </View>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => toggleOption("Sharing Personal Details of Others")}
+      >
+        <View style={styles.option}>
+          <View
+            style={[
+              styles.checkbox,
+              selectedOptions.Sharing_personal_Details_of_Others &&
+                styles.checked,
+            ]}
+          />
+          <Text style={styles.label}>Sharing personal details of others</Text>
         </View>
       </TouchableOpacity>
     </View>
