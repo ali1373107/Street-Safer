@@ -43,7 +43,6 @@ export const signUp = (fullName, email, password, isAdmin = false) => {
     }
   };
 };
-//implementing sign in
 
 export const signIn = (email, password) => {
   return async (dispatch) => {
@@ -101,9 +100,7 @@ const saveToDataStorage = (token, userId) => {
 export const logout = () => {
   return async (dispatch) => {
     try {
-      // Clear user data from AsyncStorage
       await AsyncStorage.removeItem("userData");
-      // Dispatch action to clear authentication state in Redux store
       dispatch({ type: "LOGOUT" });
     } catch (error) {
       console.error("Error logging out:", error);

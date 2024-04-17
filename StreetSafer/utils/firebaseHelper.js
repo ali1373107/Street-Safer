@@ -6,7 +6,6 @@ import {
   ref,
   uploadBytesResumable,
   getDownloadURL,
-  listAll,
 } from "firebase/storage";
 
 let firebaseApp;
@@ -43,11 +42,9 @@ export const storeImageToStorage = async (uri, name) => {
 
     const uploadTask = uploadBytesResumable(storageRef, theBlob);
 
-    // Listen for state changes, errors, and completion of the upload.
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         console.log("Upload is " + progress + "% done");
@@ -56,7 +53,6 @@ export const storeImageToStorage = async (uri, name) => {
         console.error("Error uploading image:", error);
       },
       () => {
-        // Upload completed successfully, now we can get the download URL
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           console.log("File available at", downloadURL);
         });

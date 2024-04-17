@@ -25,8 +25,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/Entypo";
 import { UserProvider } from "./screens/UserContext";
 
-/// Notifications
-
 const TabNav = ({ loggedIn }) => {
   const Tab = createBottomTabNavigator();
   const navigation = useNavigation();
@@ -43,10 +41,7 @@ const TabNav = ({ loggedIn }) => {
           return (
             <Icon
               name="menu"
-              onPress={
-                () => navigation.dispatch(DrawerActions.toggleDrawer)
-                //navigation.openDrawer()
-              }
+              onPress={() => navigation.dispatch(DrawerActions.toggleDrawer)}
               size={30}
               color={COLORS.black}
               style={{ marginLeft: 10 }}
@@ -151,4 +146,3 @@ const styles = StyleSheet.create({
     height: 500,
   },
 });
-///////
