@@ -180,17 +180,17 @@ const AddPothole = ({ navigation }) => {
               <Picker.Item
                 label="Not Dangerous"
                 value="Not Dangerous"
-                color={COLORS.white}
+                color={COLORS.primary}
               />
               <Picker.Item
                 label="Likely Dangerous"
                 value="Likely Dangerous"
-                color={COLORS.white}
+                color={COLORS.primary}
               />
               <Picker.Item
                 label="Dangerous"
                 value="Dangerous"
-                color={COLORS.white}
+                color={COLORS.primary}
               />
             </Picker>
             {permission?.status !== ImagePicker.PermissionStatus.GRANTED && (
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
 
   label: {
     fontSize: 25,
-    marginBottom: -40,
+    marginBottom: 10,
     color: COLORS.white,
     textAlign: "center",
     marginTop: 15,
