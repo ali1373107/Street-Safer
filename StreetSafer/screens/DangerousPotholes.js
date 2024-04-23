@@ -35,10 +35,12 @@ const ListOfDangerousPotholes = () => {
       <Text style={styles.text}>Street Name: {item.streetName}</Text>
       <Text style={styles.text}>Postcode: {item.postcode}</Text>
       <Text style={styles.text}>Danger Level: {item.dangerLevel}</Text>
+
       <Text style={styles.text}>
         Description:{" "}
         {item.description ? item.description : "No description provided"}
       </Text>
+      <Text style={styles.text}>Latest update: {item.update}</Text>
     </View>
   );
 

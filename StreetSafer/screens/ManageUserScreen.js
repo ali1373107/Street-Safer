@@ -61,7 +61,7 @@ const ManageUserScreen = ({ navigation }) => {
           console.log("useridsy", userid);
           console.log("user", user);
           setIsAdmin(user.isAdmin);
-          if (user.isAdmin) {
+          if (isAdmin == "true") {
             getAllUsers(setUsers);
             Alert.alert("Success");
 
