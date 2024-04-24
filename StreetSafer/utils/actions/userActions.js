@@ -46,20 +46,6 @@ export const getAllUsers = async (setUsers) => {
 
   return cleanup;
 };
-export const updateUser = async (userData) => {
-  const app = getFirebaseApp();
-  const db = getDatabase(app);
-  try {
-    const userRef = child(db, `users/${userData.id}`);
-    console.log("userData", userData);
-
-    await update(userRef, userData);
-
-    return userData;
-  } catch (error) {
-    throw error;
-  }
-};
 export const getUserByEmail = async (email) => {
   try {
     const db = getDatabase();

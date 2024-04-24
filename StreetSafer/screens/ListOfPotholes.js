@@ -26,7 +26,6 @@ const ListOfPotholes = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { user } = useUser();
   const [statusName, setStatusName] = useState("");
-  const [noDataAvailable, setNoDataAvailable] = useState(false);
 
   const handleDelete = async (potholeId) => {
     try {
@@ -59,13 +58,7 @@ const ListOfPotholes = ({ navigation }) => {
       }
     }
   };
-  useEffect(() => {
-    if (potholes.length === 0) {
-      setNoDataAvailable(true);
-    } else {
-      setNoDataAvailable(false);
-    }
-  }, [potholes]);
+
   const handleFilterByStatus = async () => {
     if (statusName.trim() === "" || statusName.trim().toLowerCase() === "all") {
       // If email input is empty, display all potholes
@@ -89,7 +82,7 @@ const ListOfPotholes = ({ navigation }) => {
   useEffect(() => {
     const getUserStatus = async () => {
       try {
-        if (user.isAdmin == "true") {
+        if (user.isAdmin === true) {
           setEmail("");
           getPotholes(setPotholes);
         } else {
@@ -243,19 +236,12 @@ const ListOfPotholes = ({ navigation }) => {
           </View>
         </View>
       )}
-      {noDataAvailable ? (
-        <View style={styles.container}>
-          <Text style={styles.text}>
-            There are currently no potholes to display
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={potholes}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      )}
+
+      <FlatList
+        data={potholes}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+      />
     </SafeAreaView>
   );
 };

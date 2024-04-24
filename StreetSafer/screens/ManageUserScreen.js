@@ -12,6 +12,7 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useUser } from "./UserContext";
+import { getAuth, deleteUser } from "firebase/auth";
 
 import { COLORS, FONTS } from "../constants";
 import { getDatabase, ref, remove } from "firebase/database";
@@ -27,6 +28,8 @@ const ManageUserScreen = ({ navigation }) => {
     try {
       const db = getDatabase();
       await remove(ref(db, `users/${userId}`));
+      const auth = getAuth();
+      await deleteUser(auth.currentUser);
       setUsers(users.filter((user1) => user1.id !== userId));
       Alert.alert("Success", "User deleted successfully");
     } catch (error) {
@@ -61,7 +64,7 @@ const ManageUserScreen = ({ navigation }) => {
           console.log("useridsy", userid);
           console.log("user", user);
           setIsAdmin(user.isAdmin);
-          if (isAdmin == "true") {
+          if (user.isAdmin === true) {
             getAllUsers(setUsers);
             Alert.alert("Success");
 
