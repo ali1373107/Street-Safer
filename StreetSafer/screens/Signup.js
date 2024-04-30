@@ -9,7 +9,6 @@ import { useDispatch } from "react-redux";
 import { signUp } from "../utils/actions/authAction";
 import React, { useCallback, useReducer, useState, useEffect } from "react";
 import { reducer } from "../utils/reducers/formReducers";
-import { validate } from "validate.js";
 
 const isTestMode = true;
 const initialState = {

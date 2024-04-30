@@ -73,7 +73,15 @@ const Login = ({ navigation }) => {
     } catch (error) {
       console.log(error);
       setIsLoading(false);
-      setError(error.message);
+      if (
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/wrong-password"
+      ) {
+        Alert.alert("Login Failed", "Invalid email or password");
+      } else {
+        setError(error.message);
+        Alert.alert("Error", "An error occurred during login");
+      }
     }
   };
   const handleForgotPassword = async () => {
