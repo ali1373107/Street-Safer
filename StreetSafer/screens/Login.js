@@ -58,11 +58,7 @@ const Login = ({ navigation }) => {
       const email = formState.inputValues.email;
       console.log("email", email);
       await handleSearchByEmail(email);
-      const action = signIn(
-        formState.inputValues.email,
-        formState.inputValues.password
-      );
-      await dispatch(action);
+      signIn(formState.inputValues.email, formState.inputValues.password);
       setError(null);
       Alert.alert("Login Successfully", "Successfully signed in ");
       setIsLoading(false);
