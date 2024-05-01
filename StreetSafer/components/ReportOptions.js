@@ -2,35 +2,28 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 const ReportOptions = ({ handleOptionSelection }) => {
-  const [selectedOptions, setSelectedOptions] = useState({});
+  const [selectedOption, setSelectedOption] = useState("");
 
   const toggleOption = (option) => {
-    const updatedOptions = {
-      ...selectedOptions,
-      [option]: !selectedOptions[option],
-    };
-    setSelectedOptions(updatedOptions);
-
-    const selectedOptionsArray = Object.keys(updatedOptions).filter(
-      (key) => updatedOptions[key]
-    );
-    handleOptionSelection(selectedOptionsArray);
+    setSelectedOption(option === selectedOption ? "" : option);
+    handleOptionSelection(option === selectedOption ? "" : option);
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.legend}>Choose options</Text>
 
       <TouchableOpacity
         onPress={() =>
-          toggleOption("incorrect location for the pothole reported")
+          toggleOption("incorrect_location_for_the_pothole_reported")
         }
       >
         <View style={styles.option}>
           <View
             style={[
               styles.checkbox,
-              selectedOptions.incorrect_location_reported_for_pothole &&
-                styles.checked,
+              selectedOption ===
+                "incorrect_location_for_the_pothole_reported" && styles.checked,
             ]}
           />
           <Text style={styles.label}>
@@ -46,7 +39,7 @@ const ReportOptions = ({ handleOptionSelection }) => {
           <View
             style={[
               styles.checkbox,
-              selectedOptions.Sharing_irrelevant_Image && styles.checked,
+              selectedOption === "Sharing_irrelevant_Image" && styles.checked,
             ]}
           />
           <Text style={styles.label}>Sharing irrelevant Image</Text>
@@ -54,13 +47,13 @@ const ReportOptions = ({ handleOptionSelection }) => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => toggleOption("Sharing Personal Details of Others")}
+        onPress={() => toggleOption("Sharing_Personal_Details_of_Others")}
       >
         <View style={styles.option}>
           <View
             style={[
               styles.checkbox,
-              selectedOptions.Sharing_personal_Details_of_Others &&
+              selectedOption === "Sharing_Personal_Details_of_Others" &&
                 styles.checked,
             ]}
           />

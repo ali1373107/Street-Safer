@@ -26,7 +26,6 @@ const Signup = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
   const [formState, dispatchFormState] = useReducer(reducer, initialState);
-  const dispatch = useDispatch();
   const inputChangedHandeler = useCallback(
     (inputId, inputValue) => {
       const result = validateInput(inputId, inputValue);
