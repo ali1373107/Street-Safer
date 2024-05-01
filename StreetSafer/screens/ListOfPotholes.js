@@ -82,20 +82,24 @@ const ListOfPotholes = ({ navigation }) => {
   useEffect(() => {
     const getUserStatus = async () => {
       try {
-        if (user.isAdmin === true) {
-          setEmail("");
-          getPotholes(setPotholes);
+        if (user !== null) {
+          if (user.isAdmin == true) {
+            setEmail("");
+            await getPotholes(setPotholes);
+          } else {
+            await fetchPotholesById(user.userId, setPotholes);
+          }
         } else {
-          fetchPotholesById(user.userId, setPotholes);
+          return null;
         }
       } catch (error) {
-        console.error("Error getting user's status:", error);
+        console.error("Error getting user", error);
         return null;
       }
     };
 
     getUserStatus();
-  }, []);
+  }, [user]);
 
   const handleSaveStatus = async (potholeId, status, update) => {
     try {

@@ -19,7 +19,6 @@ import { reducer } from "../utils/reducers/formReducers";
 import { validateInput } from "../utils/actions/formActions";
 import { signIn } from "../utils/actions/authAction";
 import { getUserByEmail } from "../utils/actions/userActions";
-import { useDispatch } from "react-redux";
 import { useUser } from "./UserContext";
 import { getFirebaseApp } from "../utils/firebaseHelper";
 

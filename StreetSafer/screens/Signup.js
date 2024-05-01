@@ -5,7 +5,6 @@ import Button from "../components/Button";
 import { TouchableOpacity } from "react-native";
 import { COLORS, images, FONTS, SIZES } from "../constants";
 import { validateInput } from "../utils/actions/formActions";
-import { useDispatch } from "react-redux";
 import { signUp } from "../utils/actions/authAction";
 import React, { useCallback, useReducer, useState, useEffect } from "react";
 import { reducer } from "../utils/reducers/formReducers";
@@ -38,13 +37,12 @@ const Signup = ({ navigation }) => {
   const authHandeletr = async () => {
     try {
       setIsLoading(true);
-      const action = signUp(
+      signUp(
         formState.inputValues.fullName,
         formState.inputValues.email,
         formState.inputValues.password
       );
       console.log("alert:", Alert);
-      await dispatch(action);
       Alert.alert("Account Successfully created ", "Account created. ");
       setError(null);
       setIsLoading(false);

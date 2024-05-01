@@ -64,28 +64,25 @@ const ManageUserScreen = ({ navigation }) => {
           console.log("useridsy", userid);
           console.log("user", user);
           setIsAdmin(user.isAdmin);
-          if (user.isAdmin === true) {
-            getAllUsers(setUsers);
-            Alert.alert("Success");
+          if (user.isAdmin == true) {
+            await getAllUsers(setUsers);
 
             setEmail("");
           } else {
             await getUserById(user.userId, setUsers);
             setUsers([user]);
-            Alert.alert("Success");
           }
         } else {
-          console.log("User data not found in AsyncStorage");
           return null;
         }
       } catch (error) {
-        console.error("Error getting user data from AsyncStorage:", error);
+        console.error("Error getting user data", error);
         return null;
       }
     };
 
     getUser();
-  }, []);
+  }, [user]);
   const formatDate = (dateString) => {
     const dateObject = new Date(dateString);
 

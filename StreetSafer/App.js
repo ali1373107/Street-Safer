@@ -13,8 +13,6 @@ import PotholesOnMap from "./screens/PotholesOnMap";
 import DangerousPothole from "./screens/DangerousPotholes";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
-import { Provider } from "react-redux";
-import { store } from "./store/store";
 import { COLORS } from "./constants";
 import LogoutScreen from "./screens/LogoutScreen";
 import ManageUserScreen from "./screens/ManageUserScreen";
@@ -25,7 +23,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/Entypo";
 import { UserProvider } from "./screens/UserContext";
 
-const TabNav = ({ loggedIn }) => {
+const TabNav = () => {
   const Tab = createBottomTabNavigator();
   const navigation = useNavigation();
 
@@ -59,7 +57,6 @@ const TabNav = ({ loggedIn }) => {
 };
 const StackNav = () => {
   const Stack = createNativeStackNavigator();
-  const navigation = useNavigation();
   return (
     <Stack.Navigator
       screenOptions={{
@@ -118,13 +115,11 @@ const DrawerNav = () => {
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <UserProvider>
-        <NavigationContainer>
-          <DrawerNav />
-        </NavigationContainer>
-      </UserProvider>
-    </Provider>
+    <UserProvider>
+      <NavigationContainer>
+        <DrawerNav />
+      </NavigationContainer>
+    </UserProvider>
   );
 }
 

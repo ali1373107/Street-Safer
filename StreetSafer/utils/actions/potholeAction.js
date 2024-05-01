@@ -79,7 +79,7 @@ export const getDangerousPotholes = (dangerLevel = "Dangerous", callback) => {
     throw error;
   }
 };
-export const getPotholes = (setPotholes) => {
+export const getPotholes = async (setPotholes) => {
   const app = getFirebaseApp();
   const db = getDatabase(app);
   const potholesRef = ref(db, "potholes");
@@ -131,7 +131,7 @@ export const reportExistingPothole = async (
     throw error;
   }
 };
-export const fetchPotholesById = (userId, setPotholes) => {
+export const fetchPotholesById = async (userId, setPotholes) => {
   const db = getDatabase();
   const potholesRef = ref(db, "potholes");
   const potholesQuery = query(
@@ -155,7 +155,7 @@ export const fetchPotholesById = (userId, setPotholes) => {
     listener();
   };
 };
-export const fetchPotholesByEmail = (email, setPotholes) => {
+export const fetchPotholesByEmail = async (email, setPotholes) => {
   const db = getDatabase();
   const potholesRef = ref(db, "potholes");
   const potholesQuery = query(
@@ -180,7 +180,7 @@ export const fetchPotholesByEmail = (email, setPotholes) => {
     listener();
   };
 };
-export const getPotholesByPostcode = (streetName, setPotholes) => {
+export const getPotholesByPostcode = async (streetName, setPotholes) => {
   const app = getFirebaseApp();
   const db = getDatabase(app);
   const potholesRef = ref(db, "potholes");
