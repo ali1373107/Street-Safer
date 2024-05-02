@@ -151,7 +151,6 @@ const AddPothole = ({ navigation }) => {
               placeholder="Street Name"
               value={streetName}
               placeholderTextColor={COLORS.gray}
-              onInputChanged={inputChangedHandler}
               color={COLORS.white}
             />
             <Input
@@ -160,7 +159,6 @@ const AddPothole = ({ navigation }) => {
               value={postcode}
               placeholder="Postcode"
               placeholderTextColor={COLORS.gray}
-              onInputChanged={inputChangedHandler}
               color={COLORS.white}
             />
 
