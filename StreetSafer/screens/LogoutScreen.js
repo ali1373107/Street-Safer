@@ -27,7 +27,7 @@ const LogoutScreen = ({ navigation }) => {
 
       await AsyncStorage.removeItem("userData");
       logOut();
-      // Navigate to the desired screen after logout
+      
       navigation.navigate("Map");
 
       // Show success message
